@@ -7,7 +7,6 @@ import org.springframework.web.client.RestTemplate;
 import ru.practicum.model.EndpointHitDto;
 import ru.practicum.model.ViewStatsDto;
 
-import java.lang.reflect.ParameterizedType;
 import java.time.LocalDateTime;
 import java.util.List;
 
