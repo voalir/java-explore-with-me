@@ -21,7 +21,7 @@ public class StatController {
     List<ViewStatsDto> getViewStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                     @RequestParam(required = false) String[] uris,
-                                    @RequestParam(required = false, defaultValue = "false") Boolean unique) {
+                                    @RequestParam(defaultValue = "false") Boolean unique) {
         return statService.getViewStats(start, end, uris, unique);
     }
 
