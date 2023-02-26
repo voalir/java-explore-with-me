@@ -1,6 +1,7 @@
 package ru.practicum.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.model.EndpointHitDto;
 import ru.practicum.model.ViewStatsDto;
@@ -17,8 +18,8 @@ public class StatController {
     StatService statService;
 
     @GetMapping("/stats")
-    List<ViewStatsDto> getViewStats(@RequestParam LocalDateTime start,
-                                    @RequestParam LocalDateTime end,
+    List<ViewStatsDto> getViewStats(@RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                    @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                     @RequestParam(required = false) String[] uris,
                                     @RequestParam(required = false, defaultValue = "false") Boolean unique) {
         return statService.getViewStats(start, end, uris, unique);

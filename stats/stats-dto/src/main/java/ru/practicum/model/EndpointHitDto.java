@@ -10,7 +10,7 @@ import java.util.Objects;
  * EndpointHit
  */
 public class EndpointHitDto {
-    @NotBlank
+
     private Long id;
     @NotBlank
     private String app;
@@ -18,13 +18,8 @@ public class EndpointHitDto {
     private String uri;
     @NotBlank
     private String ip;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
     private LocalDateTime timestamp;
-
-    public EndpointHitDto id(Long id) {
-        this.id = id;
-        return this;
-    }
 
     public Long getId() {
         return id;
@@ -32,11 +27,6 @@ public class EndpointHitDto {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public EndpointHitDto app(String app) {
-        this.app = app;
-        return this;
     }
 
     public String getApp() {
@@ -47,11 +37,6 @@ public class EndpointHitDto {
         this.app = app;
     }
 
-    public EndpointHitDto uri(String uri) {
-        this.uri = uri;
-        return this;
-    }
-
     public String getUri() {
         return uri;
     }
@@ -60,22 +45,12 @@ public class EndpointHitDto {
         this.uri = uri;
     }
 
-    public EndpointHitDto ip(String ip) {
-        this.ip = ip;
-        return this;
-    }
-
     public String getIp() {
         return ip;
     }
 
     public void setIp(String ip) {
         this.ip = ip;
-    }
-
-    public EndpointHitDto timestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-        return this;
     }
 
     public LocalDateTime getTimestamp() {

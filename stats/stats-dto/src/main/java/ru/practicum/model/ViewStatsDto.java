@@ -7,13 +7,14 @@ import java.util.Objects;
  */
 public class ViewStatsDto {
 
-    private String app = null;
-    private String uri = null;
-    private Long hits = null;
+    private String app;
+    private String uri;
+    private Long hits;
 
-    public ViewStatsDto app(String app) {
+    public ViewStatsDto(String app, String uri, Long hits) {
         this.app = app;
-        return this;
+        this.uri = uri;
+        this.hits = hits;
     }
 
     public String getApp() {
@@ -24,22 +25,12 @@ public class ViewStatsDto {
         this.app = app;
     }
 
-    public ViewStatsDto uri(String uri) {
-        this.uri = uri;
-        return this;
-    }
-
     public String getUri() {
         return uri;
     }
 
     public void setUri(String uri) {
         this.uri = uri;
-    }
-
-    public ViewStatsDto hits(Long hits) {
-        this.hits = hits;
-        return this;
     }
 
     public Long getHits() {
