@@ -15,29 +15,29 @@ import java.time.LocalDateTime;
                                 @ColumnResult(name = "hits", type = Long.class)
                         }
                 )})
-@NamedNativeQueries(
-        {@NamedNativeQuery(name = "getViewStatsUniqueByUrls",
+@NamedNativeQueries({
+        @NamedNativeQuery(name = "getViewStatsUniqueByUrls",
                 query = "select distinct hits.app, hits.uri, count(hits.id) as hits from hits " +
                         "where hits.timestamp between ?1 and ?2 " +
                         "and hits.uri in (?3)" +
                         "group by hits.app, hits.uri order by hits desc",
                 resultSetMapping = "ToViewStatsDtoMapping"),
-                @NamedNativeQuery(name = "getViewStatsByUrls",
-                        query = "select hits.app, hits.uri, count(hits.id) as hits from hits " +
-                                "where hits.timestamp between ?1 and ?2 " +
-                                "and hits.uri in (?3)" +
-                                "group by hits.app, hits.uri order by hits desc",
-                        resultSetMapping = "ToViewStatsDtoMapping"),
-                @NamedNativeQuery(name = "getViewStatsUnique",
-                        query = "select distinct hits.app, hits.uri, count(hits.id) as hits from hits " +
-                                "where hits.timestamp between ?1 and ?2 " +
-                                "group by hits.app, hits.uri order by hits desc",
-                        resultSetMapping = "ToViewStatsDtoMapping"),
-                @NamedNativeQuery(name = "getViewStats",
-                        query = "select hits.app, hits.uri, count(hits.id) as hits from hits " +
-                                "where hits.timestamp between ?1 and ?2 " +
-                                "group by hits.app, hits.uri order by hits desc",
-                        resultSetMapping = "ToViewStatsDtoMapping")}
+        @NamedNativeQuery(name = "getViewStatsByUrls",
+                query = "select hits.app, hits.uri, count(hits.id) as hits from hits " +
+                        "where hits.timestamp between ?1 and ?2 " +
+                        "and hits.uri in (?3)" +
+                        "group by hits.app, hits.uri order by hits desc",
+                resultSetMapping = "ToViewStatsDtoMapping"),
+        @NamedNativeQuery(name = "getViewStatsUnique",
+                query = "select distinct hits.app, hits.uri, count(hits.id) as hits from hits " +
+                        "where hits.timestamp between ?1 and ?2 " +
+                        "group by hits.app, hits.uri order by hits desc",
+                resultSetMapping = "ToViewStatsDtoMapping"),
+        @NamedNativeQuery(name = "getViewStats",
+                query = "select hits.app, hits.uri, count(hits.id) as hits from hits " +
+                        "where hits.timestamp between ?1 and ?2 " +
+                        "group by hits.app, hits.uri order by hits desc",
+                resultSetMapping = "ToViewStatsDtoMapping")}
 )
 public class Hit {
     @Id
