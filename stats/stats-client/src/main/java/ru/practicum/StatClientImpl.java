@@ -17,6 +17,7 @@ public class StatClientImpl implements StatClient {
     @Value("${stats-client.url}")
     private String url;
     RestTemplate restTemplate = new RestTemplate();
+
     @Override
     public void registerHit(EndpointHitDto endpointHitDto) {
         restTemplate.postForObject(url, endpointHitDto, EndpointHitDto.class);
@@ -24,6 +25,7 @@ public class StatClientImpl implements StatClient {
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
-        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<ViewStatsDto>>() {},start,end,uris,unique).getBody();
+        return restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<List<ViewStatsDto>>() {
+        }, start, end, uris, unique).getBody();
     }
 }
