@@ -2,13 +2,15 @@ package ru.practicum.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.model.EndpointHitDto;
-import ru.practicum.model.HitMapper;
-import ru.practicum.model.ViewStatsDto;
+import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.mapper.HitMapper;
+import ru.practicum.dto.ViewStatsDto;
+import ru.practicum.mapper.ViewStatMapper;
 import ru.practicum.repository.StatRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StatServiceImp implements StatService {
@@ -25,16 +27,17 @@ public class StatServiceImp implements StatService {
     public List<ViewStatsDto> getViewStats(LocalDateTime start, LocalDateTime end, String[] urls, Boolean unique) {
         if (unique) {
             if (urls == null) {
-                return statRepository.getViewStatsUnique(start, end);
-            } else {
-                return statRepository.getViewStatsUniqueByUrls(start, end, List.of(urls));
+                return statRepository.getViewStatsUnique(start, end)
+                        .stream().map(ViewStatMapper::toViewStatsDto).collect(Collectors.toList());
             }
-        } else {
-            if (urls == null) {
-                return statRepository.getViewStats(start, end);
-            } else {
-                return statRepository.getViewStatsByUrls(start, end, List.of(urls));
-            }
+            return statRepository.getViewStatsUniqueByUrls(start, end, List.of(urls))
+                    .stream().map(ViewStatMapper::toViewStatsDto).collect(Collectors.toList());
         }
+        if (urls == null) {
+            return statRepository.getViewStats(start, end)
+                    .stream().map(ViewStatMapper::toViewStatsDto).collect(Collectors.toList());
+        }
+        return statRepository.getViewStatsByUrls(start, end, List.of(urls))
+                .stream().map(ViewStatMapper::toViewStatsDto).collect(Collectors.toList());
     }
 }

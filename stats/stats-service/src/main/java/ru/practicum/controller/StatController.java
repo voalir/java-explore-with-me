@@ -3,8 +3,8 @@ package ru.practicum.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.model.EndpointHitDto;
-import ru.practicum.model.ViewStatsDto;
+import ru.practicum.dto.EndpointHitDto;
+import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.service.StatService;
 
 import javax.validation.Valid;
