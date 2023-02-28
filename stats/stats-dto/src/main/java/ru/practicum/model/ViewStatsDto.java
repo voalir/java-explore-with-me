@@ -7,9 +7,9 @@ import java.util.Objects;
  */
 public class ViewStatsDto {
 
-    private String app;
-    private String uri;
-    private Long hits;
+    private final String app;
+    private final String uri;
+    private final Long hits;
 
     public ViewStatsDto(String app, String uri, Long hits) {
         this.app = app;
@@ -21,26 +21,13 @@ public class ViewStatsDto {
         return app;
     }
 
-    public void setApp(String app) {
-        this.app = app;
-    }
-
     public String getUri() {
         return uri;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
     }
 
     public Long getHits() {
         return hits;
     }
-
-    public void setHits(Long hits) {
-        this.hits = hits;
-    }
-
 
     @Override
     public boolean equals(java.lang.Object o) {
