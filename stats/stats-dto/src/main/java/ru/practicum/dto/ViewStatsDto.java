@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * ViewStats
  */
-public class ViewStatsDto {
+public final class ViewStatsDto {
 
     private final String app;
     private final String uri;

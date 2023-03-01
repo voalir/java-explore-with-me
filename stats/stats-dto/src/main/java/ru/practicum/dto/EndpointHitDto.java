@@ -9,7 +9,7 @@ import java.util.Objects;
 /**
  * EndpointHit
  */
-public class EndpointHitDto {
+public final class EndpointHitDto {
 
     private final Long id;
     @NotBlank
