@@ -12,6 +12,7 @@ public final class NewUserRequest {
     @Email
     @NotNull
     private final String email;
+    @NotNull
     private final String name;
 
     public NewUserRequest(String email, String name) {

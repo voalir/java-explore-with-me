@@ -1,9 +1,11 @@
 package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -17,7 +19,8 @@ public final class UpdateEventUserRequest {
     private final Long category;
     @Size(min = 20, max = 7000)
     private final String description;
-    private final String eventDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    private final LocalDateTime eventDate;
     private final Location location;
     private final Boolean paid;
     private final Integer participantLimit;
@@ -26,7 +29,7 @@ public final class UpdateEventUserRequest {
     @Size(min = 3, max = 120)
     private final String title;
 
-    public UpdateEventUserRequest(String annotation, Long category, String description, String eventDate,
+    public UpdateEventUserRequest(String annotation, Long category, String description, LocalDateTime eventDate,
                                   Location location, Boolean paid, Integer participantLimit, Boolean requestModeration,
                                   StateActionEnum stateAction, String title) {
         this.annotation = annotation;
@@ -39,6 +42,46 @@ public final class UpdateEventUserRequest {
         this.requestModeration = requestModeration;
         this.stateAction = stateAction;
         this.title = title;
+    }
+
+    public String getAnnotation() {
+        return annotation;
+    }
+
+    public Long getCategory() {
+        return category;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getEventDate() {
+        return eventDate;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public Boolean getPaid() {
+        return paid;
+    }
+
+    public Integer getParticipantLimit() {
+        return participantLimit;
+    }
+
+    public Boolean getRequestModeration() {
+        return requestModeration;
+    }
+
+    public StateActionEnum getStateAction() {
+        return stateAction;
+    }
+
+    public String getTitle() {
+        return title;
     }
 
     @Override

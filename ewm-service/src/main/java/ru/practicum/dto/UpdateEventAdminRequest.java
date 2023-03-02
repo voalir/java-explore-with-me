@@ -1,9 +1,11 @@
 package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -16,7 +18,8 @@ public final class UpdateEventAdminRequest {
     private final Long category;
     @Size(min = 20, max = 7000)
     private final String description;
-    private final String eventDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    private final LocalDateTime eventDate;
     private final Location location;
     private final Boolean paid;
     private final Integer participantLimit;
@@ -25,7 +28,7 @@ public final class UpdateEventAdminRequest {
     @Size(min = 3, max = 120)
     private final String title;
 
-    public UpdateEventAdminRequest(String annotation, Long category, String description, String eventDate,
+    public UpdateEventAdminRequest(String annotation, Long category, String description, LocalDateTime eventDate,
                                    Location location, Boolean paid, Integer participantLimit, Boolean requestModeration,
                                    StateActionEnum stateAction, String title) {
         this.annotation = annotation;
@@ -52,7 +55,7 @@ public final class UpdateEventAdminRequest {
         return description;
     }
 
-    public String getEventDate() {
+    public LocalDateTime getEventDate() {
         return eventDate;
     }
 

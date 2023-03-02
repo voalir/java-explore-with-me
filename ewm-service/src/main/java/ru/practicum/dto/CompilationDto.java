@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -8,8 +9,11 @@ import java.util.Objects;
  */
 public final class CompilationDto {
     private final List<EventShortDto> events;
+    @NotNull
     private final Long id;
+    @NotNull
     private final Boolean pinned;
+    @NotNull
     private final String title;
 
     public CompilationDto(List<EventShortDto> events, Long id, Boolean pinned, String title) {

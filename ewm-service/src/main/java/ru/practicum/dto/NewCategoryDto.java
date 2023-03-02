@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
 /**
@@ -7,6 +8,7 @@ import java.util.Objects;
  */
 public final class NewCategoryDto {
 
+    @NotNull
     private final String name;
 
     public NewCategoryDto(String name) {

@@ -1,5 +1,8 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
@@ -7,13 +10,14 @@ import java.util.Objects;
  */
 public final class ParticipationRequestDto {
 
-    private final String created;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    private final LocalDateTime created;
     private final Long event;
     private final Long id;
     private final Long requester;
     private final String status;
 
-    public ParticipationRequestDto(String created, Long event, Long id, Long requester, String status) {
+    public ParticipationRequestDto(LocalDateTime created, Long event, Long id, Long requester, String status) {
         this.created = created;
         this.event = event;
         this.id = id;
@@ -21,7 +25,7 @@ public final class ParticipationRequestDto {
         this.status = status;
     }
 
-    public String getCreated() {
+    public LocalDateTime getCreated() {
         return created;
     }
 

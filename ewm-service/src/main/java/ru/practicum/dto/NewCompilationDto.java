@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Objects;
 
@@ -12,6 +13,7 @@ public final class NewCompilationDto {
 
     private final Boolean pinned;
 
+    @NotNull
     private final String title;
 
     public NewCompilationDto(List<Long> events, Boolean pinned, String title) {

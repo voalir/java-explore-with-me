@@ -1,33 +1,46 @@
 package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 /**
  * EventFullDto
  */
 public final class EventFullDto {
+
+    @NotNull
     private final String annotation;
+    @NotNull
     private final CategoryDto category;
     private final Long confirmedRequests;
-    private final String createdOn;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    private final LocalDateTime createdOn;
     private final String description;
-    private final String eventDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    @NotNull
+    private final LocalDateTime eventDate;
     private final Long id;
+    @NotNull
     private final UserShortDto initiator;
+    @NotNull
     private final Location location;
+    @NotNull
     private final Boolean paid;
     private final Integer participantLimit;
     private final String publishedOn;
     private final Boolean requestModeration;
     private final StateEnum state;
+    @NotNull
     private final String title;
     private final Long views;
 
-    public EventFullDto(String annotation, CategoryDto category, Long confirmedRequests, String createdOn,
-                        String description, String eventDate, Long id, UserShortDto initiator, Location location,
+    public EventFullDto(String annotation, CategoryDto category, Long confirmedRequests, LocalDateTime createdOn,
+                        String description, LocalDateTime eventDate, Long id, UserShortDto initiator, Location location,
                         Boolean paid, Integer participantLimit, String publishedOn, Boolean requestModeration,
                         StateEnum state, String title, Long views) {
         this.annotation = annotation;
@@ -60,7 +73,7 @@ public final class EventFullDto {
         return confirmedRequests;
     }
 
-    public String getCreatedOn() {
+    public LocalDateTime getCreatedOn() {
         return createdOn;
     }
 
@@ -68,7 +81,7 @@ public final class EventFullDto {
         return description;
     }
 
-    public String getEventDate() {
+    public LocalDateTime getEventDate() {
         return eventDate;
     }
 

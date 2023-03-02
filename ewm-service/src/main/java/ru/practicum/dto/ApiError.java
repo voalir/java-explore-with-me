@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,9 +19,9 @@ public final class ApiError {
     private final String reason;
     private final StatusEnum status;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
-    private final String timestamp;
+    private final LocalDateTime timestamp;
 
-    public ApiError(List<String> errors, String message, String reason, StatusEnum status, String timestamp) {
+    public ApiError(List<String> errors, String message, String reason, StatusEnum status, LocalDateTime timestamp) {
         this.errors = errors;
         this.message = message;
         this.reason = reason;
@@ -44,7 +45,7 @@ public final class ApiError {
         return status;
     }
 
-    public String getTimestamp() {
+    public LocalDateTime getTimestamp() {
         return timestamp;
     }
 
