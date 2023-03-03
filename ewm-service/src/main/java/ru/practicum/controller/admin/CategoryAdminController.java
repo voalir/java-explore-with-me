@@ -7,7 +7,8 @@ import ru.practicum.dto.NewCategoryDto;
 
 import javax.validation.Valid;
 
-@RestController("/admin/categories")
+@RestController
+@RequestMapping(path = "/admin/categories")
 public class CategoryAdminController {
 
     @PostMapping

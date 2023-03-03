@@ -1,13 +1,15 @@
 package ru.practicum.controller.publicity;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.dto.CompilationDto;
 
 import java.util.List;
 
-@RestController("/compilations")
+@RestController
+@RequestMapping(path = "/compilations")
 public class CompilationPublicController {
 
     @GetMapping
@@ -17,8 +19,8 @@ public class CompilationPublicController {
         throw new RuntimeException("not implemented");
     }
 
-    @GetMapping
-    CompilationDto getCompilationById(@RequestParam Integer id) {
+    @GetMapping("/{compId}")
+    CompilationDto getCompilationById(@RequestParam Integer compId) {
         throw new RuntimeException("not implemented");
     }
 }

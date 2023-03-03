@@ -9,7 +9,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@RestController("/admin/users")
+@RestController
+@RequestMapping(path = "/admin/users")
 public class UserAdminController {
     @GetMapping
     List<UserDto> getUsers(@RequestParam List<Integer> ids,

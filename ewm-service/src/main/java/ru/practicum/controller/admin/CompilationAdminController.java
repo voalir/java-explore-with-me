@@ -7,7 +7,8 @@ import ru.practicum.dto.UpdateCompilationRequest;
 
 import javax.validation.Valid;
 
-@RestController("/admin/compilations")
+@RestController
+@RequestMapping(path = "/admin/compilations")
 public class CompilationAdminController {
 
     @PostMapping

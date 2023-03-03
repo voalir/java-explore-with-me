@@ -5,7 +5,8 @@ import ru.practicum.dto.ParticipationRequestDto;
 
 import java.util.List;
 
-@RestController("/users")
+@RestController
+@RequestMapping(path = "/users")
 public class RequestPrivateController {
 
     @GetMapping("/{userId}/requests")

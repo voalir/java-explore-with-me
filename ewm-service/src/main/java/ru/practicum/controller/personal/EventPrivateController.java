@@ -9,7 +9,8 @@ import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-@RestController("/users")
+@RestController
+@RequestMapping(path = "/users")
 public class EventPrivateController {
 
     @GetMapping("/{userId}/events")

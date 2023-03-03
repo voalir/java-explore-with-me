@@ -1,10 +1,7 @@
 package ru.practicum.controller.publicity;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 
@@ -13,7 +10,8 @@ import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RequestMapping("/events")
+@RestController
+@RequestMapping(path = "/events")
 public class EventPublicController {
     @GetMapping
     List<EventShortDto> getEvents(@RequestParam String text,

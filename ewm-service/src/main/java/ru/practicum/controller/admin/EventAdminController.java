@@ -10,7 +10,8 @@ import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@RestController("/admin/events")
+@RestController
+@RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
     @GetMapping
