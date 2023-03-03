@@ -1,9 +1,10 @@
 package ru.practicum.controller.admin;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.CategoryDto;
 import ru.practicum.dto.NewCategoryDto;
+import ru.practicum.service.CategoryService;
 
 import javax.validation.Valid;
 
@@ -11,20 +12,23 @@ import javax.validation.Valid;
 @RequestMapping(path = "/admin/categories")
 public class CategoryAdminController {
 
+    @Autowired
+    CategoryService categoryService;
+
     @PostMapping
-    ResponseEntity<Object> addCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
-        throw new RuntimeException("not implemented");
+    CategoryDto addCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
+        return categoryService.addCategory(newCategoryDto);
     }
 
     @DeleteMapping("/{catId}")
-    ResponseEntity<Object> deleteCategory(@PathVariable Long catId) {
-        throw new RuntimeException("not implemented");
+    void deleteCategory(@PathVariable Long catId) {
+        categoryService.deleteCategory(catId);
     }
 
     @PatchMapping("/{catId}")
-    ResponseEntity<Object> pathUser(@PathVariable Integer catId,
-                                    @Valid @RequestBody CategoryDto categoryDto) {
-        throw new RuntimeException("not implemented");
+    CategoryDto pathUser(@PathVariable Integer catId,
+                         @Valid @RequestBody CategoryDto categoryDto) {
+        return categoryService.updateCategory(catId, categoryDto);
     }
 
 }

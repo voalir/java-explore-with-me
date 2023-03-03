@@ -1,9 +1,11 @@
 package ru.practicum.controller.publicity;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
+import ru.practicum.service.EventService;
 
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -13,6 +15,10 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/events")
 public class EventPublicController {
+
+    @Autowired
+    EventService eventService;
+
     @GetMapping
     List<EventShortDto> getEvents(@RequestParam String text,
                                   @RequestParam List<Long> categories,
@@ -23,7 +29,7 @@ public class EventPublicController {
                                   @RequestParam String sort,
                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                   @RequestParam(defaultValue = "10") @Positive Integer size) {
-        throw new RuntimeException("not implemented");
+        return eventService.getEventsByFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{id}")
@@ -34,6 +40,6 @@ public class EventPublicController {
     информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов
     информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
 */
-        throw new RuntimeException("not implemented");
+        return eventService.getEventPublishedById(id);
     }
 }
