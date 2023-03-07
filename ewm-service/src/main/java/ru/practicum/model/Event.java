@@ -18,11 +18,14 @@ public class Event {
     @JoinColumn(name = "initiator_id")
     private User initiator;
     private String description;
+    @JoinColumn(name = "event_date")
     private LocalDateTime eventDate;
     private Float lat;//location
     private Float lon;//location
     private Boolean paid;
+    @JoinColumn(name = "participant_limit")
     private Integer participantLimit;
+    @JoinColumn(name = "request_moderation")
     private Boolean requestModeration;
     private String title;
 

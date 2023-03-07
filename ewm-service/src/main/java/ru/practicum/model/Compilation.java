@@ -1,7 +1,5 @@
 package ru.practicum.model;
 
-import ru.practicum.dto.EventShortDto;
-
 import javax.persistence.*;
 import java.util.List;
 
@@ -13,11 +11,11 @@ public class Compilation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToMany
-    private List<EventShortDto> events;
+    private List<Event> events;
     private Boolean pinned;
     private String title;
 
-    public Compilation(Long id, List<EventShortDto> events, Boolean pinned, String title) {
+    public Compilation(Long id, List<Event> events, Boolean pinned, String title) {
         this.id = id;
         this.events = events;
         this.pinned = pinned;
@@ -32,11 +30,11 @@ public class Compilation {
         this.id = id;
     }
 
-    public List<EventShortDto> getEvents() {
+    public List<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(List<EventShortDto> events) {
+    public void setEvents(List<Event> events) {
         this.events = events;
     }
 
