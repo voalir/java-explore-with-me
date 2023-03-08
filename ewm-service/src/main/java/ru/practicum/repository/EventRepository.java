@@ -20,4 +20,6 @@ public interface EventRepository extends JpaRepository<Event, Long> {
     List<EventFull> findEventsByFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, PageRequest pageRequest);
 
     EventFull findEventByIdAndPublished(Long id);
+
+    Integer getCountConfirmedRequestsByEvent(Event event);
 }

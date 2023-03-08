@@ -19,6 +19,14 @@ public final class EventRequestStatusUpdateRequest {
         this.status = status;
     }
 
+    public List<Long> getRequestIds() {
+        return requestIds;
+    }
+
+    public StatusEnum getStatus() {
+        return status;
+    }
+
     @Override
     public boolean equals(java.lang.Object o) {
         if (this == o) {

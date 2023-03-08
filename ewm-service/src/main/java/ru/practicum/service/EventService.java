@@ -1,6 +1,7 @@
 package ru.practicum.service;
 
 import ru.practicum.dto.*;
+import ru.practicum.model.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,4 +22,8 @@ public interface EventService {
     List<EventShortDto> getEventsByFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size);
 
     EventFullDto getEventPublishedById(Long id);
+
+    Event getEventByIdRaw(Long eventId);
+
+    Integer getCountConfirmedRequestsByEvent(Event event);
 }

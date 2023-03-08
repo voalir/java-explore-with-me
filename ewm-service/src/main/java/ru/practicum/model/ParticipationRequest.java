@@ -17,9 +17,9 @@ public class ParticipationRequest {
     @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;
-    private String status;//TODO enum?
+    private ParticipationRequestStatus status;
 
-    public ParticipationRequest(Long id, LocalDateTime created, Event event, User requester, String status) {
+    public ParticipationRequest(Long id, LocalDateTime created, Event event, User requester, ParticipationRequestStatus status) {
         this.id = id;
         this.created = created;
         this.event = event;
@@ -59,11 +59,11 @@ public class ParticipationRequest {
         this.requester = requester;
     }
 
-    public String getStatus() {
+    public ParticipationRequestStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ParticipationRequestStatus status) {
         this.status = status;
     }
 }

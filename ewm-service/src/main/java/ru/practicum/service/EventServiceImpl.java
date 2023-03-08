@@ -36,7 +36,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
-        Event event = findEventById(eventId);
+        Event event = getEventByIdRaw(eventId);
         updateEventByRequest(event, updateEventAdminRequest);
         Event eventUpdated = eventRepository.save(event);
         return EventMapper.toEventFullDto(eventUpdated, null, null);//TODO replace null to data
@@ -66,7 +66,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event event = findEventById(eventId);
+        Event event = getEventByIdRaw(eventId);
         updateEventByRequest(event, updateEventUserRequest);
         Event eventUpdated = eventRepository.save(event);
         return EventMapper.toEventFullDto(eventUpdated, null, null);//TODO replace null to data
@@ -86,9 +86,15 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(eventRepository.findEventByIdAndPublished(id));
     }
 
-    private Event findEventById(Long eventId) {
+    @Override
+    public Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
+    }
+
+    @Override
+    public Integer getCountConfirmedRequestsByEvent(Event event) {
+        return eventRepository.getCountConfirmedRequestsByEvent(event);
     }
 
     private void updateEventByRequest(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
