@@ -1,36 +1,55 @@
 package ru.practicum.service;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.dto.CategoryDto;
 import ru.practicum.dto.NewCategoryDto;
+import ru.practicum.exception.NotFoundException;
+import ru.practicum.mapper.CategoryMapper;
+import ru.practicum.model.Category;
+import ru.practicum.repository.CategoryRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
 
+    @Autowired
+    CategoryRepository categoryRepository;
+
     @Override
     public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
-        return null;
+        return CategoryMapper.toCategoryDto(categoryRepository.save(CategoryMapper.toCategory(newCategoryDto)));
     }
 
     @Override
     public void deleteCategory(Long catId) {
-
+        categoryRepository.deleteById(catId);
     }
 
     @Override
-    public CategoryDto updateCategory(Integer catId, CategoryDto categoryDto) {
-        return null;
+    public CategoryDto updateCategory(Long catId, CategoryDto categoryDto) {
+        Category category = findCategoryById(catId);
+        category.setName(categoryDto.getName());
+        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
 
     @Override
     public List<CategoryDto> getCategories(Integer from, Integer size) {
-        return null;
+        PageRequest pageRequest = PageRequest.of(from / size, size);
+        return categoryRepository.findAll(pageRequest).stream()
+                .map(CategoryMapper::toCategoryDto).collect(Collectors.toList());
     }
 
     @Override
     public CategoryDto getCategoryById(Long catId) {
-        return null;
+        return CategoryMapper.toCategoryDto(findCategoryById(catId));
+    }
+
+    private Category findCategoryById(Long catId) {
+        return categoryRepository.findById(catId).orElseThrow(
+                () -> new NotFoundException("category with id=" + catId + " not found"));
     }
 }
