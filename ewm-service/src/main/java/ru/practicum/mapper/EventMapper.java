@@ -28,6 +28,12 @@ public final class EventMapper {
                 EventFullDto.StateEnum.valueOf(event.getState()), event.getTitle(), views);
     }
 
+    public static EventShortDto toEventShortDto(Event event, Long confirmedRequests, Long views) {
+        return new EventShortDto(event.getAnnotation(), CategoryMapper.toCategoryDto(event.getCategory()),
+                confirmedRequests, event.getCreatedOn(), event.getId(), UserMapper.toUserShortDto(event.getInitiator()),
+                event.getPaid(), event.getTitle(), views);
+    }
+
     public static EventShortDto toEventShortDto(EventFull event) {
         return new EventShortDto(event.getAnnotation(), CategoryMapper.toCategoryDto(event.getCategory()),
                 event.getConfirmedRequests(), event.getEventDate(), event.getId(),

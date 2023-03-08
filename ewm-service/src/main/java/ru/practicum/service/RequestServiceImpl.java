@@ -17,6 +17,7 @@ import ru.practicum.repository.RequestRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -78,6 +79,11 @@ public class RequestServiceImpl implements RequestService {
                 confirmRequest(event, requests);
         }
         return RequestMapper.toEventRequestStatusUpdateResult(requests);
+    }
+
+    @Override
+    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
+        return requestRepository.getCountConfirmedRequestsByEventIds(events);
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {

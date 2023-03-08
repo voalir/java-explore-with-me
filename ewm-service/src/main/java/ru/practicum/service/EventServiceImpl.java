@@ -97,6 +97,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.getCountConfirmedRequestsByEvent(event);
     }
 
+    @Override
+    public List<Event> getEventsByIdsRaw(List<Long> events) {
+        return eventRepository.findAllById(events);
+    }
+
     private void updateEventByRequest(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
         if (updateEventAdminRequest.getRequestModeration() != null) {
             event.setRequestModeration(updateEventAdminRequest.getRequestModeration());

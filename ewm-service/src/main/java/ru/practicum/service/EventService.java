@@ -26,4 +26,6 @@ public interface EventService {
     Event getEventByIdRaw(Long eventId);
 
     Integer getCountConfirmedRequestsByEvent(Event event);
+
+    List<Event> getEventsByIdsRaw(List<Long> events);
 }

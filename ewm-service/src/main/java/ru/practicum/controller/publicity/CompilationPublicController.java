@@ -25,7 +25,7 @@ public class CompilationPublicController {
     }
 
     @GetMapping("/{compId}")
-    CompilationDto getCompilationById(@RequestParam Integer compId) {
+    CompilationDto getCompilationById(@RequestParam Long compId) {
         return compilationService.getCompilationById(compId);
     }
 }
