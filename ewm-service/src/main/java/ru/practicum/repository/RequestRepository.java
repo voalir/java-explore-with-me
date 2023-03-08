@@ -1,20 +1,26 @@
 package ru.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
+import ru.practicum.model.ParticipationRequestStatus;
 import ru.practicum.model.User;
 
 import java.util.List;
-import java.util.Map;
 
 @Repository
 public interface RequestRepository extends JpaRepository<ParticipationRequest, Long> {
-    List<ParticipationRequest> findByUser(User user);
 
-    List<ParticipationRequest> findAllByEventAndUser(User user, Event event);
+    List<ParticipationRequest> findByRequester(User user);
 
-    Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events);
+    List<ParticipationRequest> findByEventAndRequester(Event event, User user);
+
+    @Query("select r from ParticipationRequest r where r.id in :events and r.status = :status")
+    List<ParticipationRequest> getRequestsByStatusAndEventIds(List<Long> events, ParticipationRequestStatus status);
+
+    @Query("select r from ParticipationRequest r where r.id = :eventId and r.status = :status")
+    List<ParticipationRequest> getRequestsByStatusAndEventId(Long eventId, ParticipationRequestStatus status);
 
 }

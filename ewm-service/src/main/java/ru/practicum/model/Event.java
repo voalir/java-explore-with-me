@@ -31,12 +31,12 @@ public class Event {
     private Integer participantLimit;
     @JoinColumn(name = "request_moderation")
     private Boolean requestModeration;
-    private String state;
+    private EventState state;
     private String title;
 
     public Event(Long id, String annotation, Category category, User initiator, String description,
                  LocalDateTime eventDate, LocalDateTime createdOn, LocalDateTime publishedOn, Float lat, Float lon,
-                 Boolean paid, Integer participantLimit, Boolean requestModeration, String state, String title) {
+                 Boolean paid, Integer participantLimit, Boolean requestModeration, EventState state, String title) {
         this.id = id;
         this.annotation = annotation;
         this.category = category;
@@ -158,11 +158,11 @@ public class Event {
         this.requestModeration = requestModeration;
     }
 
-    public String getState() {
+    public EventState getState() {
         return state;
     }
 
-    public void setState(String state) {
+    public void setState(EventState state) {
         this.state = state;
     }
 

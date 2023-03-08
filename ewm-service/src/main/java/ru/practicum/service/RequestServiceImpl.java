@@ -34,7 +34,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getRequests(Long userId) {
         User user = userService.getUserByIdRaw(userId);
-        return requestRepository.findByUser(user).stream().map(RequestMapper::toParticipationRequestDto)
+        return requestRepository.findByRequester(user).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
@@ -60,7 +60,7 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
         User user = userService.getUserByIdRaw(userId);
         Event event = eventService.getEventByIdRaw(eventId);
-        return requestRepository.findAllByEventAndUser(user, event).stream().map(RequestMapper::toParticipationRequestDto)
+        return requestRepository.findByEventAndRequester(event, user).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
@@ -83,7 +83,14 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
-        return requestRepository.getCountConfirmedRequestsByEventIds(events);
+        return requestRepository.getRequestsByStatusAndEventIds(events, ParticipationRequestStatus.CONFIRMED).
+                stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
+    }
+
+    @Override
+    public Integer getCountConfirmedRequestsByEventId(Long eventId) {
+        return requestRepository.
+                getRequestsByStatusAndEventId(eventId, ParticipationRequestStatus.CONFIRMED).size();
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {
@@ -92,7 +99,7 @@ public class RequestServiceImpl implements RequestService {
         }
         List<ParticipationRequest> unconfirmedRequests = requests.stream()
                 .filter(r -> r.getStatus() != ParticipationRequestStatus.CONFIRMED).collect(Collectors.toList());
-        int freeLimit = event.getParticipantLimit() - eventService.getCountConfirmedRequestsByEvent(event);
+        int freeLimit = event.getParticipantLimit() - getCountConfirmedRequestsByEventId(event.getId());
         if (unconfirmedRequests.size() <= freeLimit) {
             unconfirmedRequests.forEach(r -> r.setStatus(ParticipationRequestStatus.CONFIRMED));
         } else {
