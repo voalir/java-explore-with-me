@@ -32,7 +32,8 @@ public final class EventFullDto {
     @NotNull
     private final Boolean paid;
     private final Integer participantLimit;
-    private final String publishedOn;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
+    private final LocalDateTime publishedOn;
     private final Boolean requestModeration;
     private final StateEnum state;
     @NotNull
@@ -41,7 +42,7 @@ public final class EventFullDto {
 
     public EventFullDto(String annotation, CategoryDto category, Long confirmedRequests, LocalDateTime createdOn,
                         String description, LocalDateTime eventDate, Long id, UserShortDto initiator, Location location,
-                        Boolean paid, Integer participantLimit, String publishedOn, Boolean requestModeration,
+                        Boolean paid, Integer participantLimit, LocalDateTime publishedOn, Boolean requestModeration,
                         StateEnum state, String title, Long views) {
         this.annotation = annotation;
         this.category = category;
@@ -105,7 +106,7 @@ public final class EventFullDto {
         return participantLimit;
     }
 
-    public String getPublishedOn() {
+    public LocalDateTime getPublishedOn() {
         return publishedOn;
     }
 

@@ -5,7 +5,7 @@ import ru.practicum.dto.UserDto;
 import ru.practicum.dto.UserShortDto;
 import ru.practicum.model.User;
 
-public class UserMapper {
+public final class UserMapper {
 
     public static User toUser(UserDto userDto) {
         return new User(null, userDto.getName(), userDto.getEmail());

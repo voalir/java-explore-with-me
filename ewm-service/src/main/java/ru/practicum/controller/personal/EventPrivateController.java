@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.*;
 import ru.practicum.service.EventService;
+import ru.practicum.service.RequestService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
@@ -16,6 +17,8 @@ public class EventPrivateController {
 
     @Autowired
     EventService eventService;
+    @Autowired
+    RequestService requestService;
 
     @GetMapping("/{userId}/events")
     List<EventShortDto> getEvents(@PathVariable Long userId,
@@ -25,8 +28,8 @@ public class EventPrivateController {
     }
 
     @PostMapping("/{userId}/events")
-    NewEventDto addEvent(@PathVariable Long userId,
-                         @Valid @RequestBody NewEventDto newEventDto) {
+    EventFullDto addEvent(@PathVariable Long userId,
+                          @Valid @RequestBody NewEventDto newEventDto) {
         return eventService.addEvent(userId, newEventDto);
     }
 
@@ -46,7 +49,7 @@ public class EventPrivateController {
     @GetMapping("/{userId}/events/{eventId}/requests")
     List<ParticipationRequestDto> getParticipationRequests(@PathVariable Long userId,
                                                            @PathVariable Long eventId) {
-        return eventService.getParticipationRequests(userId, eventId);
+        return requestService.getParticipationRequests(userId, eventId);
     }
 
     @PatchMapping("/{userId}/events/{eventId}/requests")
@@ -54,7 +57,7 @@ public class EventPrivateController {
             @PathVariable Long userId,
             @PathVariable Long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        return eventService.updateRequestStatus(userId, eventId, eventRequestStatusUpdateRequest);
+        return requestService.updateRequestStatus(userId, eventId, eventRequestStatusUpdateRequest);
     }
 
 }

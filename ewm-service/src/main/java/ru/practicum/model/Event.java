@@ -20,6 +20,10 @@ public class Event {
     private String description;
     @JoinColumn(name = "event_date")
     private LocalDateTime eventDate;
+    @JoinColumn(name = "created_on")
+    private LocalDateTime createdOn;
+    @JoinColumn(name = "published_on")
+    private LocalDateTime publishedOn;
     private Float lat;//location
     private Float lon;//location
     private Boolean paid;
@@ -27,22 +31,26 @@ public class Event {
     private Integer participantLimit;
     @JoinColumn(name = "request_moderation")
     private Boolean requestModeration;
+    private String state;
     private String title;
 
     public Event(Long id, String annotation, Category category, User initiator, String description,
-                 LocalDateTime eventDate, Float lat, Float lon, Boolean paid, Integer participantLimit,
-                 Boolean requestModeration, String title) {
+                 LocalDateTime eventDate, LocalDateTime createdOn, LocalDateTime publishedOn, Float lat, Float lon,
+                 Boolean paid, Integer participantLimit, Boolean requestModeration, String state, String title) {
         this.id = id;
         this.annotation = annotation;
         this.category = category;
         this.initiator = initiator;
         this.description = description;
         this.eventDate = eventDate;
+        this.createdOn = createdOn;
+        this.publishedOn = publishedOn;
         this.lat = lat;
         this.lon = lon;
         this.paid = paid;
         this.participantLimit = participantLimit;
         this.requestModeration = requestModeration;
+        this.state = state;
         this.title = title;
     }
 
@@ -94,6 +102,22 @@ public class Event {
         this.eventDate = eventDate;
     }
 
+    public LocalDateTime getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(LocalDateTime createdOn) {
+        this.createdOn = createdOn;
+    }
+
+    public LocalDateTime getPublishedOn() {
+        return publishedOn;
+    }
+
+    public void setPublishedOn(LocalDateTime publishedOn) {
+        this.publishedOn = publishedOn;
+    }
+
     public Float getLat() {
         return lat;
     }
@@ -132,6 +156,14 @@ public class Event {
 
     public void setRequestModeration(Boolean requestModeration) {
         this.requestModeration = requestModeration;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 
     public String getTitle() {

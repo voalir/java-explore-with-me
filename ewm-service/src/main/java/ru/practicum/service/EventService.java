@@ -12,15 +12,11 @@ public interface EventService {
 
     List<EventShortDto> getEventsForUser(Long userId, Integer from, Integer size);
 
-    NewEventDto addEvent(Long userId, NewEventDto newEventDto);
+    EventFullDto addEvent(Long userId, NewEventDto newEventDto);
 
     EventFullDto getEventById(Long userId, Long eventId);
 
     EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
-
-    List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId);
-
-    EventRequestStatusUpdateResult updateRequestStatus(Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest);
 
     List<EventShortDto> getEventsByFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size);
 
