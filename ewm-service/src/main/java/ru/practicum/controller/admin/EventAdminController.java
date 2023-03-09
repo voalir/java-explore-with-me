@@ -20,11 +20,11 @@ public class EventAdminController {
     EventService eventService;
 
     @GetMapping
-    List<EventFullDto> getEvents(@RequestParam List<Long> users,
-                                 @RequestParam List<EventFullDto.StateEnum> states,//TODO - type StateEnum?
-                                 @RequestParam List<Long> categories,
-                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                 @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+    List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,
+                                 @RequestParam(required = false) List<EventFullDto.StateEnum> states,
+                                 @RequestParam(required = false) List<Long> categories,
+                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                 @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                  @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
         return eventService.getEvents(users, states, categories, rangeStart, rangeEnd, from, size);

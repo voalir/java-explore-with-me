@@ -39,7 +39,7 @@ public class CompilationServiceImpl implements CompilationService {
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         List<Event> events = eventService.getEventsByIdsRaw(newCompilationDto.getEvents());
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(newCompilationDto.getEvents());
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         newCompilationDto.getEvents().stream().map(id -> "/events/" + id).toArray(String[]::new), false).
                 stream().collect(
                         Collectors.toMap(s -> Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -67,7 +67,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(compilation.getEvents().
                 stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         compilation.getEvents().stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(
                         Collectors.toMap(s -> Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -84,7 +84,7 @@ public class CompilationServiceImpl implements CompilationService {
                 flatMap(List::stream).distinct().collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(events.
                 stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(
                         Collectors.toMap(s -> Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -97,7 +97,7 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = getCompilationByIdRaw(compId);
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(compilation.getEvents().
                 stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         compilation.getEvents().stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(
                         Collectors.toMap(s -> Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));

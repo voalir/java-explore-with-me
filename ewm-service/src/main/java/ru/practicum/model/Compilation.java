@@ -22,6 +22,9 @@ public class Compilation {
         this.title = title;
     }
 
+    public Compilation() {
+    }
+
     public Long getId() {
         return id;
     }

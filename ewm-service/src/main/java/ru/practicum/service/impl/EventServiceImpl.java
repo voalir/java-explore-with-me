@@ -54,13 +54,13 @@ public class EventServiceImpl implements EventService {
         Root<Event> eventRoot = query.from(Event.class);
         List<Predicate> predicates = new ArrayList<>();
         if (users != null && users.size() > 0) {
-            predicates.add(criteriaBuilder.in(eventRoot.get("initiator").in(users)));
+            predicates.add(eventRoot.get("initiator").in(users));
         }
         if (states != null && states.size() > 0) {
-            predicates.add(criteriaBuilder.in(eventRoot.get("state").in(states)));
+            predicates.add(eventRoot.get("state").in(states));
         }
         if (categories != null && categories.size() > 0) {
-            predicates.add(criteriaBuilder.in(eventRoot.get("category").in(categories)));
+            predicates.add(eventRoot.get("category").in(categories));
         }
         if (rangeStart != null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(eventRoot.get("eventDate"), rangeStart));
@@ -74,7 +74,7 @@ public class EventServiceImpl implements EventService {
                 .getResultList();
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -143,7 +143,7 @@ public class EventServiceImpl implements EventService {
             ));
         }
         if (categories != null && categories.size() > 0) {
-            predicates.add(criteriaBuilder.in(eventRoot.get("category").in(categories)));
+            predicates.add(eventRoot.get("category").in(categories));
         }
         if (rangeStart != null) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(eventRoot.get("eventDate"), rangeStart));
@@ -165,7 +165,7 @@ public class EventServiceImpl implements EventService {
                     .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
                     .collect(Collectors.toList());
         }
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -201,14 +201,14 @@ public class EventServiceImpl implements EventService {
     private EventFullDto convertEventToFullDto(Event event) {
         Long confirmedRequests = (long) requestService.getCountConfirmedRequestsByEventId(event.getId());
         Long views = (long) statClient.getStats(
-                LocalDateTime.MIN, LocalDateTime.now(), new String[]{"/events/" + event.getId()}, false).size();
+                LocalDateTime.now().minusYears(10), LocalDateTime.now(), new String[]{"/events/" + event.getId()}, false).size();
         return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     private List<EventShortDto> convertEventsToShortDto(List<Event> events) {
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.MIN, LocalDateTime.now(),
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
@@ -245,7 +245,7 @@ public class EventServiceImpl implements EventService {
             event.setParticipantLimit(updateEventAdminRequest.getParticipantLimit());
         }
         if (updateEventAdminRequest.getStateAction() != null) {
-            event.setState(EventState.valueOf(updateEventAdminRequest.getStateAction().name()));
+            event.setState(EventMapper.toEventState(updateEventAdminRequest.getStateAction()));
         }
         if (updateEventAdminRequest.getTitle() != null) {
             event.setTitle(updateEventAdminRequest.getTitle());
@@ -279,7 +279,7 @@ public class EventServiceImpl implements EventService {
             event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
         }
         if (updateEventUserRequest.getStateAction() != null) {
-            event.setState(EventState.valueOf(updateEventUserRequest.getStateAction().name()));
+            event.setState(EventMapper.toEventState(updateEventUserRequest.getStateAction()));
         }
         if (updateEventUserRequest.getTitle() != null) {
             event.setTitle(updateEventUserRequest.getTitle());

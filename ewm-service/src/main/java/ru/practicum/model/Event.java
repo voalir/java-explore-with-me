@@ -54,6 +54,9 @@ public class Event {
         this.title = title;
     }
 
+    public Event() {
+    }
+
     public Long getId() {
         return id;
     }

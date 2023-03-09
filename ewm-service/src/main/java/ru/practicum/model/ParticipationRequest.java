@@ -19,6 +19,9 @@ public class ParticipationRequest {
     private User requester;
     private ParticipationRequestStatus status;
 
+    public ParticipationRequest() {
+    }
+
     public ParticipationRequest(Long id, LocalDateTime created, Event event, User requester, ParticipationRequestStatus status) {
         this.id = id;
         this.created = created;

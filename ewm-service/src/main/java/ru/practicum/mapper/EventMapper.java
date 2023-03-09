@@ -1,9 +1,6 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.EventFullDto;
-import ru.practicum.dto.EventShortDto;
-import ru.practicum.dto.Location;
-import ru.practicum.dto.NewEventDto;
+import ru.practicum.dto.*;
 import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.EventState;
@@ -32,5 +29,27 @@ public final class EventMapper {
                 newEventDto.getEventDate(), LocalDateTime.now(), null, newEventDto.getLocation().getLat(),
                 newEventDto.getLocation().getLon(), newEventDto.getPaid(), newEventDto.getParticipantLimit(),
                 newEventDto.getRequestModeration(), EventState.PENDING, newEventDto.getTitle());
+    }
+
+    public static EventState toEventState(UpdateEventAdminRequest.StateActionEnum stateActionEnum) {
+        switch (stateActionEnum) {
+            case PUBLISH_EVENT:
+                return EventState.PUBLISHED;
+            case REJECT_EVENT:
+                return EventState.CANCELED;
+            default:
+                return EventState.PENDING;
+        }
+    }
+
+    public static EventState toEventState(UpdateEventUserRequest.StateActionEnum stateActionEnum) {
+        switch (stateActionEnum) {
+            case CANCEL_REVIEW:
+                return EventState.CANCELED;
+            case SEND_TO_REVIEW:
+                return EventState.PENDING;
+            default:
+                return EventState.PUBLISHED;
+        }
     }
 }

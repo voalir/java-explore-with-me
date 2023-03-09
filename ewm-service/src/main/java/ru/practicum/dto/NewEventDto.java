@@ -1,5 +1,6 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.validation.constraints.NotNull;
@@ -32,6 +33,7 @@ public final class NewEventDto {
     @NotNull
     private final String title;
 
+    @JsonCreator
     public NewEventDto(String annotation, Long category, String description, LocalDateTime eventDate, Location location,
                        Boolean paid, Integer participantLimit, Boolean requestModeration, String title) {
         this.annotation = annotation;

@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
-import ru.practicum.model.ParticipationRequestStatus;
 import ru.practicum.model.User;
 
 import java.util.List;
@@ -17,10 +16,10 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 
     List<ParticipationRequest> findByEventAndRequester(Event event, User user);
 
-    @Query("select r from ParticipationRequest r where r.id in :events and r.status = :status")
-    List<ParticipationRequest> getRequestsByStatusAndEventIds(List<Long> events, ParticipationRequestStatus status);
+    @Query("select r from ParticipationRequest r where r.id in :events and cast(r.status as text) = :status")
+    List<ParticipationRequest> getRequestsByStatusAndEventIds(List<Long> events, String status);
 
-    @Query("select r from ParticipationRequest r where r.id = :eventId and r.status = :status")
-    List<ParticipationRequest> getRequestsByStatusAndEventId(Long eventId, ParticipationRequestStatus status);
+    @Query("select r from ParticipationRequest r where r.id = :eventId and cast(r.status as text) = :status")
+    List<ParticipationRequest> getRequestsByStatusAndEventId(Long eventId, String status);
 
 }

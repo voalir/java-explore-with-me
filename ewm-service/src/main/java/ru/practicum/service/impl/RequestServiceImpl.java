@@ -85,14 +85,14 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
-        return requestRepository.getRequestsByStatusAndEventIds(events, ParticipationRequestStatus.CONFIRMED).
+        return requestRepository.getRequestsByStatusAndEventIds(events, ParticipationRequestStatus.CONFIRMED.name()).
                 stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
     }
 
     @Override
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
         return requestRepository.
-                getRequestsByStatusAndEventId(eventId, ParticipationRequestStatus.CONFIRMED).size();
+                getRequestsByStatusAndEventId(eventId, ParticipationRequestStatus.CONFIRMED.name()).size();
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {
