@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -14,6 +14,9 @@ import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 import ru.practicum.repository.CompilationRepository;
+import ru.practicum.service.CompilationService;
+import ru.practicum.service.EventService;
+import ru.practicum.service.RequestService;
 
 import java.time.LocalDateTime;
 import java.util.List;

@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,10 @@ import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
 import ru.practicum.model.ParticipationRequestStatus;
 import ru.practicum.model.User;
+import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
+import ru.practicum.service.RequestService;
+import ru.practicum.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,11 +28,10 @@ public class RequestServiceImpl implements RequestService {
 
     @Autowired
     RequestRepository requestRepository;
-
+    @Autowired
+    EventRepository eventRepository;
     @Autowired
     UserService userService;
-    @Autowired
-    EventService eventService;
 
     @Override
     public List<ParticipationRequestDto> getRequests(Long userId) {
@@ -41,7 +43,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
         User user = userService.getUserByIdRaw(userId);
-        Event event = eventService.getEventByIdRaw(eventId);
+        Event event = getEventByIdRaw(eventId);
         checkUserAccessToAddRequest(user, event);
         ParticipationRequest participationRequest = new ParticipationRequest(
                 null, LocalDateTime.now(), event, user, null);
@@ -59,7 +61,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
         User user = userService.getUserByIdRaw(userId);
-        Event event = eventService.getEventByIdRaw(eventId);
+        Event event = getEventByIdRaw(eventId);
         return requestRepository.findByEventAndRequester(event, user).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
@@ -69,7 +71,7 @@ public class RequestServiceImpl implements RequestService {
     public EventRequestStatusUpdateResult updateRequestStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
         User user = userService.getUserByIdRaw(userId);
-        Event event = eventService.getEventByIdRaw(eventId);
+        Event event = getEventByIdRaw(eventId);
         checkUserAccessToUpdateRequest(user, event);
         List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
         switch (eventRequestStatusUpdateRequest.getStatus()) {
@@ -111,20 +113,25 @@ public class RequestServiceImpl implements RequestService {
         requests.forEach(r -> r.setStatus(ParticipationRequestStatus.REJECTED));
     }
 
-    public ParticipationRequest getParticipationRequestByIdRaw(Long requestId) {
+    private ParticipationRequest getParticipationRequestByIdRaw(Long requestId) {
         return requestRepository.findById(requestId).orElseThrow(
                 () -> new NotFoundException("request with id=" + requestId + " not found"));
     }
 
-    void checkUserAccessToUpdateRequest(User user, Event event) {
+    private void checkUserAccessToUpdateRequest(User user, Event event) {
         if (!event.getInitiator().equals(user)) {
             throw new AccessFailedException("user with id=" + user.getId() + " can't change event data with id=" + event.getId());
         }
     }
 
-    void checkUserAccessToAddRequest(User user, Event event) {
+    private void checkUserAccessToAddRequest(User user, Event event) {
         if (event.getInitiator().equals(user)) {
             throw new AccessFailedException("user with id=" + user.getId() + " initiator for event with id=" + event.getId());
         }
+    }
+
+    private Event getEventByIdRaw(Long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("event with id=" + eventId + " not found"));
     }
 }

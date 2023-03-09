@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -9,6 +9,7 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
+import ru.practicum.service.UserService;
 
 import java.util.List;
 import java.util.stream.Collectors;

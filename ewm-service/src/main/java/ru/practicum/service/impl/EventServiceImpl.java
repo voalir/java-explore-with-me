@@ -1,4 +1,4 @@
-package ru.practicum.service;
+package ru.practicum.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
@@ -12,6 +12,10 @@ import ru.practicum.model.Event;
 import ru.practicum.model.EventState;
 import ru.practicum.model.User;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.service.CategoryService;
+import ru.practicum.service.EventService;
+import ru.practicum.service.RequestService;
+import ru.practicum.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -90,7 +94,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getEventsForUser(Long userId, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
-        List<Event> events = eventRepository.findByUser(new User(userId, null, null), pageRequest);
+        List<Event> events = eventRepository.findByInitiator(new User(userId, null, null), pageRequest);
         return convertEventsToShortDto(events);
     }
 
