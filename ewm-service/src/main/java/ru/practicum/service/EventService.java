@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventService {
+
     List<EventFullDto> getEvents(List<Long> users, List<EventFullDto.StateEnum> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
     EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
@@ -24,8 +25,6 @@ public interface EventService {
     EventFullDto getEventPublishedById(Long id);
 
     Event getEventByIdRaw(Long eventId);
-
-    Integer getCountConfirmedRequestsByEvent(Event event);
 
     List<Event> getEventsByIdsRaw(List<Long> events);
 }
