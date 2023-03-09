@@ -20,13 +20,13 @@ public class EventPublicController {
     EventService eventService;
 
     @GetMapping
-    List<EventShortDto> getEvents(@RequestParam String text,
-                                  @RequestParam List<Long> categories,
-                                  @RequestParam Boolean paid,
-                                  @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                  @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                  @RequestParam Boolean onlyAvailable,
-                                  @RequestParam String sort,
+    List<EventShortDto> getEvents(@RequestParam(required = false) String text,
+                                  @RequestParam(required = false) List<Long> categories,
+                                  @RequestParam(required = false) Boolean paid,
+                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                  @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                  @RequestParam(required = false) Boolean onlyAvailable,
+                                  @RequestParam(required = false) String sort,
                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                   @RequestParam(defaultValue = "10") @Positive Integer size) {
         return eventService.getEventsByFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);

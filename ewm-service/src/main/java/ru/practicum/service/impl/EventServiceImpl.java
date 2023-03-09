@@ -160,7 +160,7 @@ public class EventServiceImpl implements EventService {
                 .getResultList();
         Map<Long, Long> confirmedRequests = requestService.
                 getCountConfirmedRequestsByEventIds(events.stream().map(Event::getId).collect(Collectors.toList()));
-        if (onlyAvailable) {
+        if (onlyAvailable != null && onlyAvailable) {
             events = events.stream()
                     .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
                     .collect(Collectors.toList());
@@ -169,7 +169,7 @@ public class EventServiceImpl implements EventService {
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
-        if (sort.equals("VIEWS")) {
+        if (sort != null && sort.equals("VIEWS")) {
             events = events.stream().sorted(Comparator.comparing(
                     event -> views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
         }
