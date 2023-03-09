@@ -1,6 +1,7 @@
 package ru.practicum.controller.personal;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.service.RequestService;
@@ -20,6 +21,7 @@ public class RequestPrivateController {
     }
 
     @PostMapping("/{userId}/requests")
+    @ResponseStatus(HttpStatus.CREATED)
     ParticipationRequestDto createParticipationRequest(@PathVariable Long userId,
                                                        @RequestParam Long eventId) {
         /*

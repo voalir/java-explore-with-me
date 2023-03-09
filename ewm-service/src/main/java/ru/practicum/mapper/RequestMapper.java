@@ -13,7 +13,7 @@ public final class RequestMapper {
         return new ParticipationRequestDto(
                 participationRequest.getCreated(), participationRequest.getEvent().getId(),
                 participationRequest.getId(), participationRequest.getRequester().getId(),
-                participationRequest.getStatus().name());
+                participationRequest.getStatus() == null ? null : participationRequest.getStatus().name());
     }
 
     public static EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(List<ParticipationRequest> requests) {

@@ -1,6 +1,8 @@
 package ru.practicum.dto;
 
-import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonCreator;
+
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -10,9 +12,10 @@ import java.util.Objects;
 public final class CategoryDto {
 
     private final Long id;
-    @NotNull
+    @NotBlank
     private final String name;
 
+    @JsonCreator
     public CategoryDto(Long id, String name) {
         this.id = id;
         this.name = name;

@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.StatClient;
 import ru.practicum.dto.*;
+import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.model.Category;
@@ -46,6 +47,20 @@ public class EventServiceImpl implements EventService {
     @Autowired
     EntityManager entityManager;
 
+    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
+        if (event.getEventDate() != null && event.getEventDate().isAfter(LocalDateTime.now().minusHours(1))) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
+                event.getState() != EventState.PENDING) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't published");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
+                event.getState() == EventState.PUBLISHED) {
+            throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
+        }
+    }
+
     @Override
     public List<EventFullDto> getEvents(List<Long> users, List<EventFullDto.StateEnum> states, List<Long> categories,
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
@@ -77,7 +92,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
+                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
         return events.stream().map(event -> EventMapper.toEventFullDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
@@ -86,6 +101,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
         Event event = getEventByIdRaw(eventId);
+        validToUpdate(eventId, updateEventAdminRequest, event);
         updateEventByRequest(event, updateEventAdminRequest);
         Event eventUpdated = eventRepository.save(event);
         return convertEventToFullDto(eventUpdated);
@@ -119,6 +135,9 @@ public class EventServiceImpl implements EventService {
     @Override
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         Event event = getEventByIdRaw(eventId);
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new AccessFailedException("Event with id=" + eventId + " is too old");
+        }
         updateEventByRequest(event, updateEventUserRequest);
         Event eventUpdated = eventRepository.save(event);
         return convertEventToFullDto(eventUpdated);
@@ -132,7 +151,7 @@ public class EventServiceImpl implements EventService {
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(Event.class);
         Root<Event> eventRoot = query.from(Event.class);
         List<Predicate> predicates = new ArrayList<>();
-        if (!text.isBlank()) {
+        if (text != null) {
             predicates.add(criteriaBuilder.or(
                     criteriaBuilder.like(
                             criteriaBuilder.lower(eventRoot.get("title")), "%" + text.toLowerCase() + "%"),
@@ -168,7 +187,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
+                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
         if (sort != null && sort.equals("VIEWS")) {
             events = events.stream().sorted(Comparator.comparing(
                     event -> views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
@@ -211,7 +230,7 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
                 stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(9)), ViewStatsDto::getHits));
+                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
 
         return events.stream().map(event -> EventMapper.toEventShortDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),

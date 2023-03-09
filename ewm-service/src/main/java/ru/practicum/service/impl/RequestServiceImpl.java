@@ -46,7 +46,7 @@ public class RequestServiceImpl implements RequestService {
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToAddRequest(user, event);
         ParticipationRequest participationRequest = new ParticipationRequest(
-                null, LocalDateTime.now(), event, user, null);
+                null, LocalDateTime.now(), event, user, ParticipationRequestStatus.PENDING);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
     }
 
@@ -77,8 +77,10 @@ public class RequestServiceImpl implements RequestService {
         switch (eventRequestStatusUpdateRequest.getStatus()) {
             case REJECTED:
                 rejectRequest(requests);
+                break;
             case CONFIRMED:
                 confirmRequest(event, requests);
+                break;
         }
         return RequestMapper.toEventRequestStatusUpdateResult(requests);
     }

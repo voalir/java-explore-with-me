@@ -2,7 +2,7 @@ package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 import java.util.Objects;
 
 /**
@@ -10,7 +10,7 @@ import java.util.Objects;
  */
 public final class NewCategoryDto {
 
-    @NotNull
+    @NotBlank
     private final String name;
 
     @JsonCreator

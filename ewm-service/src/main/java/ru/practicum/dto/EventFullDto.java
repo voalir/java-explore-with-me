@@ -40,6 +40,7 @@ public final class EventFullDto {
     private final String title;
     private final Long views;
 
+    @JsonCreator
     public EventFullDto(String annotation, CategoryDto category, Long confirmedRequests, LocalDateTime createdOn,
                         String description, LocalDateTime eventDate, Long id, UserShortDto initiator, Location location,
                         Boolean paid, Integer participantLimit, LocalDateTime publishedOn, Boolean requestModeration,

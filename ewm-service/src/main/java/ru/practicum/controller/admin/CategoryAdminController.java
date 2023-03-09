@@ -3,6 +3,8 @@ package ru.practicum.controller.admin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.CategoryDto;
 import ru.practicum.dto.NewCategoryDto;
@@ -12,6 +14,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping(path = "/admin/categories")
+@Validated
 public class CategoryAdminController {
 
     Logger logger = LoggerFactory.getLogger(CategoryAdminController.class);
@@ -20,6 +23,7 @@ public class CategoryAdminController {
     CategoryService categoryService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     CategoryDto addCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
         logger.debug("add category");
         return categoryService.addCategory(newCategoryDto);
@@ -32,8 +36,9 @@ public class CategoryAdminController {
     }
 
     @PatchMapping("/{catId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     CategoryDto pathUser(@PathVariable Long catId,
-                         @Valid @RequestBody CategoryDto categoryDto) {
+                         @RequestBody @Valid CategoryDto categoryDto) {
         logger.debug("update category " + catId);
         return categoryService.updateCategory(catId, categoryDto);
     }

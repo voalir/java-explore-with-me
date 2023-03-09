@@ -29,6 +29,7 @@ public final class UpdateEventAdminRequest {
     @Size(min = 3, max = 120)
     private final String title;
 
+    @JsonCreator
     public UpdateEventAdminRequest(String annotation, Long category, String description, LocalDateTime eventDate,
                                    Location location, Boolean paid, Integer participantLimit, Boolean requestModeration,
                                    StateActionEnum stateAction, String title) {

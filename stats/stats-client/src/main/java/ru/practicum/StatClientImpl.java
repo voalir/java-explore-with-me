@@ -59,6 +59,7 @@ public class StatClientImpl implements StatClient {
         params.put("unique", unique.toString());
         HttpEntity<Object> requestEntity = new HttpEntity<>(defaultHeaders());
         return restTemplate.exchange(urlTemplate, HttpMethod.GET, requestEntity, new ParameterizedTypeReference<List<ViewStatsDto>>() {
+
         }, params).getBody();
     }
 

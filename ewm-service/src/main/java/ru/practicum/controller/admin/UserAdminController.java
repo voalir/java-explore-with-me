@@ -1,6 +1,8 @@
 package ru.practicum.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.dto.NewUserRequest;
 import ru.practicum.dto.UserDto;
@@ -13,6 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(path = "/admin/users")
+@Validated
 public class UserAdminController {
 
     @Autowired
@@ -26,11 +29,13 @@ public class UserAdminController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     UserDto addUser(@Valid @RequestBody NewUserRequest newUserRequest) {
         return userService.addUser(newUserRequest);
     }
 
     @DeleteMapping("/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
     }
