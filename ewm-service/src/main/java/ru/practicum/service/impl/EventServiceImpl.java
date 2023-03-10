@@ -188,6 +188,7 @@ public class EventServiceImpl implements EventService {
             events = events.stream().sorted(Comparator.comparing(
                     event -> views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
         }
+        sendStat(request);
         return events.stream().map(event -> EventMapper.toEventShortDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
