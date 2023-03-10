@@ -50,7 +50,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        User user = userService.getUserByIdRaw(userId);
+        userService.getUserByIdRaw(userId);
         ParticipationRequest participationRequest = getParticipationRequestByIdRaw(requestId);
         participationRequest.setStatus(ParticipationRequestStatus.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
@@ -87,8 +87,8 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
         return requestRepository.findByEvent_IdInAndStatusIs(
-                        events, ParticipationRequestStatus.CONFIRMED).
-                stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
+                        events, ParticipationRequestStatus.CONFIRMED)
+                .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
     }
 
     @Override
@@ -146,9 +146,6 @@ public class RequestServiceImpl implements RequestService {
                     " can't create request to unpublished event with id=" + event.getId());
         }
         if (event.getParticipantLimit() <=
-                //(requestRepository.findByEvent(event).size()
-                //        - requestRepository.getRequestsByStatusAndEventId(event.getId(),
-                //        String.valueOf(ParticipationRequestStatus.REJECTED.ordinal())).size())
                 getCountConfirmedRequestsByEventId(event.getId())
         ) {
             throw new AccessFailedException("event with id=" + event.getId() + " has max participants");

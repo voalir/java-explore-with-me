@@ -70,15 +70,15 @@ public class EventServiceImpl implements EventService {
         if (rangeEnd != null) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(eventRoot.get("eventDate"), rangeEnd));
         }
-        query.select(eventRoot).where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).
-                orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
+        query.select(eventRoot).where(criteriaBuilder.and(predicates.toArray(new Predicate[0])))
+                .orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
         List<Event> events = entityManager.createQuery(query).setFirstResult(from).setMaxResults(size)
                 .getResultList();
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
-                stream().collect(Collectors.toMap(s ->
+                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
+                .stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
         return events.stream().map(event -> EventMapper.toEventFullDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),
@@ -169,20 +169,20 @@ public class EventServiceImpl implements EventService {
         if (paid != null) {
             predicates.add(criteriaBuilder.equal(eventRoot.get("paid"), paid));
         }
-        query.select(eventRoot).where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).
-                orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
+        query.select(eventRoot).where(criteriaBuilder.and(predicates.toArray(new Predicate[0])))
+                .orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
         List<Event> events = entityManager.createQuery(query).setFirstResult(from).setMaxResults(size)
                 .getResultList();
-        Map<Long, Long> confirmedRequests = requestService.
-                getCountConfirmedRequestsByEventIds(events.stream().map(Event::getId).collect(Collectors.toList()));
+        Map<Long, Long> confirmedRequests = requestService
+                .getCountConfirmedRequestsByEventIds(events.stream().map(Event::getId).collect(Collectors.toList()));
         if (onlyAvailable != null && onlyAvailable) {
             events = events.stream()
                     .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
                     .collect(Collectors.toList());
         }
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
-                stream().collect(Collectors.toMap(s ->
+                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
+                .stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
         if (sort != null && sort.equals("VIEWS")) {
             events = events.stream().sorted(Comparator.comparing(
@@ -225,8 +225,8 @@ public class EventServiceImpl implements EventService {
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false).
-                stream().collect(Collectors.toMap(s ->
+                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
+                .stream().collect(Collectors.toMap(s ->
                         Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
 
         return events.stream().map(event -> EventMapper.toEventShortDto(event,
