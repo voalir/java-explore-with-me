@@ -7,6 +7,7 @@ import ru.practicum.dto.EventFullDto;
 import ru.practicum.dto.EventShortDto;
 import ru.practicum.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
@@ -28,18 +29,19 @@ public class EventPublicController {
                                   @RequestParam(required = false) Boolean onlyAvailable,
                                   @RequestParam(required = false) String sort,
                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
-                                  @RequestParam(defaultValue = "10") @Positive Integer size) {
-        return eventService.getEventsByFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+                                  @RequestParam(defaultValue = "10") @Positive Integer size,
+                                  HttpServletRequest request) {
+        return eventService.getEventsByFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
     @GetMapping("/{id}")
-    EventFullDto getEventById(@PathVariable Long id) {
+    EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
         /*Обратите внимание:
 
     событие должно быть опубликовано
     информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов
     информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
 */
-        return eventService.getEventPublishedById(id);
+        return eventService.getEventPublishedById(id, request);
     }
 }

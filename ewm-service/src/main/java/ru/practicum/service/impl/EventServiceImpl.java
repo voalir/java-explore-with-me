@@ -23,6 +23,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -118,14 +119,14 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-
     @Override
-    public EventFullDto getEventById(Long userId, Long eventId) {
+    public EventFullDto getEventById(Long userId, Long eventId, HttpServletRequest request) {
         User user = userService.getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         if (!event.getInitiator().equals(user)) {
             throw new NotFoundException("event with id=" + eventId + " no found");
         }
+        sendStat(request);
         return convertEventToFullDto(event);
     }
 
@@ -140,7 +141,8 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<EventShortDto> getEventsByFilter(String text, List<Long> categories, Boolean paid,
                                                  LocalDateTime rangeStart, LocalDateTime rangeEnd,
-                                                 Boolean onlyAvailable, String sort, Integer from, Integer size) {
+                                                 Boolean onlyAvailable, String sort, Integer from,
+                                                 Integer size, HttpServletRequest request) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(Event.class);
         Root<Event> eventRoot = query.from(Event.class);
@@ -192,8 +194,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public EventFullDto getEventPublishedById(Long eventId) {
+    public EventFullDto getEventPublishedById(Long eventId, HttpServletRequest request) {
         Event event = getEventByIdRaw(eventId);
+        sendStat(request);
         if (!event.getState().equals(EventState.PUBLISHED)) {
             throw new NotFoundException("event with id=" + eventId + " not published");
         }
@@ -331,5 +334,16 @@ public class EventServiceImpl implements EventService {
         updateEventByRequest(event, updateEventUserRequest);
         Event eventUpdated = eventRepository.save(event);
         return convertEventToFullDto(eventUpdated);
+    }
+
+    private void sendStat(HttpServletRequest request) {
+        EndpointHitDto endpointHitDto = new EndpointHitDto(
+                null,
+                "ewm-main-service",
+                request.getRequestURI(),
+                request.getRemoteAddr(),
+                LocalDateTime.now()
+        );
+        statClient.registerHit(endpointHitDto);
     }
 }

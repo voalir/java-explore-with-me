@@ -12,7 +12,9 @@ import ru.practicum.exception.NotFoundException;
 
 import javax.validation.ValidationException;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -21,7 +23,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ApiError handleEntityNotFoundException(final NotFoundException e) {
         return new ApiError(
-                null,//Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
+                Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "not found",
                 ApiError.StatusEnum._404_NOT_FOUND,
@@ -40,7 +42,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
         return new ApiError(
-                null,//Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
+                Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "value violation",
                 ApiError.StatusEnum._409_CONFLICT,
@@ -51,7 +53,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleAccessFailedException(final AccessFailedException e) {
         return new ApiError(
-                null,//Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
+                Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "no access",
                 ApiError.StatusEnum._409_CONFLICT,

@@ -8,6 +8,7 @@ import ru.practicum.dto.*;
 import ru.practicum.service.EventService;
 import ru.practicum.service.RequestService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
@@ -39,8 +40,9 @@ public class EventPrivateController {
 
     @GetMapping("/{userId}/events/{eventId}")
     EventFullDto getEventById(@PathVariable Long userId,
-                              @PathVariable Long eventId) {
-        return eventService.getEventById(userId, eventId);
+                              @PathVariable Long eventId,
+                              HttpServletRequest request) {
+        return eventService.getEventById(userId, eventId, request);
     }
 
     @PatchMapping("/{userId}/events/{eventId}")

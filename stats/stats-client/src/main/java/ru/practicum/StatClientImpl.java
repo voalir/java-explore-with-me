@@ -2,7 +2,10 @@ package ru.practicum;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -26,26 +29,12 @@ public class StatClientImpl implements StatClient {
 
     @Override
     public void registerHit(EndpointHitDto endpointHitDto) {
-        restTemplate.postForObject(url, endpointHitDto, EndpointHitDto.class);
-    }
-
-    private static ResponseEntity<Object> prepareGatewayResponse(ResponseEntity<Object> response) {
-        if (response.getStatusCode().is2xxSuccessful()) {
-            return response;
-        }
-
-        ResponseEntity.BodyBuilder responseBuilder = ResponseEntity.status(response.getStatusCode());
-
-        if (response.hasBody()) {
-            return responseBuilder.body(response.getBody());
-        }
-
-        return responseBuilder.build();
+        restTemplate.postForObject(url + "/hit", endpointHitDto, EndpointHitDto.class);
     }
 
     @Override
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, String[] uris, Boolean unique) {
-        Map<String, Object> params = new HashMap<String, Object>();
+        Map<String, Object> params = new HashMap<>();
         String urlTemplate = UriComponentsBuilder.fromHttpUrl(url + "/stats")
                 .queryParam("start", "{start}")
                 .queryParam("end", "{end}")
