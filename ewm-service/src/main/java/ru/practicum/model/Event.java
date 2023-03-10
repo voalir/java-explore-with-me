@@ -31,6 +31,7 @@ public class Event {
     private Integer participantLimit;
     @JoinColumn(name = "request_moderation")
     private Boolean requestModeration;
+    @Enumerated(EnumType.STRING)
     private EventState state;
     private String title;
 

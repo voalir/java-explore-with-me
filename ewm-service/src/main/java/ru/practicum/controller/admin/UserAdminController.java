@@ -22,7 +22,7 @@ public class UserAdminController {
     UserService userService;
 
     @GetMapping
-    List<UserDto> getUsers(@RequestParam List<Integer> ids,
+    List<UserDto> getUsers(@RequestParam List<Long> ids,
                            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                            @RequestParam(defaultValue = "10") @Positive Integer size) {
         return userService.getUsers(ids, from, size);

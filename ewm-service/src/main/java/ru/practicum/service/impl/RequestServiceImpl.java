@@ -52,7 +52,7 @@ public class RequestServiceImpl implements RequestService {
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
         User user = userService.getUserByIdRaw(userId);
         ParticipationRequest participationRequest = getParticipationRequestByIdRaw(requestId);
-        participationRequest.setStatus(ParticipationRequestStatus.REJECTED);
+        participationRequest.setStatus(ParticipationRequestStatus.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
     }
 
@@ -60,7 +60,8 @@ public class RequestServiceImpl implements RequestService {
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
         User user = userService.getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
-        return requestRepository.findByEventAndRequester(event, user).stream().map(RequestMapper::toParticipationRequestDto)
+        checkUserAccessToEventRequest(user, event);
+        return requestRepository.findByEvent(event).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
@@ -152,7 +153,13 @@ public class RequestServiceImpl implements RequestService {
         ) {
             throw new AccessFailedException("event with id=" + event.getId() + " has max participants");
         }
+    }
 
+    private void checkUserAccessToEventRequest(User user, Event event) {
+        if (!event.getInitiator().equals(user)) {
+            throw new AccessFailedException("user with id=" + user.getId() +
+                    " not initiator for event with id=" + event.getId());
+        }
     }
 
     private Event getEventByIdRaw(Long eventId) {

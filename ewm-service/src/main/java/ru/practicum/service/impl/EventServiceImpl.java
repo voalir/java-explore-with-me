@@ -58,7 +58,7 @@ public class EventServiceImpl implements EventService {
             predicates.add(eventRoot.get("initiator").in(users));
         }
         if (states != null && states.size() > 0) {
-            predicates.add(eventRoot.get("state").in(states));
+            predicates.add(eventRoot.get("state").in(states.stream().map(EventMapper::toEventState).collect(Collectors.toList())));
         }
         if (categories != null && categories.size() > 0) {
             predicates.add(eventRoot.get("category").in(categories));

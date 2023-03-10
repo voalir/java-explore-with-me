@@ -20,7 +20,7 @@ public final class EventMapper {
 
     public static EventShortDto toEventShortDto(Event event, Long confirmedRequests, Long views) {
         return new EventShortDto(event.getAnnotation(), CategoryMapper.toCategoryDto(event.getCategory()),
-                confirmedRequests, event.getCreatedOn(), event.getId(), UserMapper.toUserShortDto(event.getInitiator()),
+                confirmedRequests, event.getEventDate(), event.getId(), UserMapper.toUserShortDto(event.getInitiator()),
                 event.getPaid(), event.getTitle(), views);
     }
 
@@ -50,6 +50,17 @@ public final class EventMapper {
                 return EventState.PENDING;
             default:
                 return EventState.PUBLISHED;
+        }
+    }
+
+    public static EventState toEventState(EventFullDto.StateEnum stateActionEnum) {
+        switch (stateActionEnum) {
+            case PUBLISHED:
+                return EventState.PUBLISHED;
+            case CANCELED:
+                return EventState.CANCELED;
+            default:
+                return EventState.PENDING;
         }
     }
 }

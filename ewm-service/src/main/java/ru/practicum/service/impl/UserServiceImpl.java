@@ -21,9 +21,9 @@ public class UserServiceImpl implements UserService {
     UserRepository userRepository;
 
     @Override
-    public List<UserDto> getUsers(List<Integer> ids, Integer from, Integer size) {
+    public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
-        return userRepository.findAll(pageRequest).stream().map(UserMapper::toUserDto).collect(Collectors.toList());
+        return userRepository.findAllByIdIn(ids, pageRequest).stream().map(UserMapper::toUserDto).collect(Collectors.toList());
     }
 
     @Override

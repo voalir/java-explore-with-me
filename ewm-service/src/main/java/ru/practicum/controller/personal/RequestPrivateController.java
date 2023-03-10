@@ -24,19 +24,12 @@ public class RequestPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     ParticipationRequestDto createParticipationRequest(@PathVariable Long userId,
                                                        @RequestParam Long eventId) {
-        /*
-    нельзя добавить повторный запрос (Ожидается код ошибки 409)
-    инициатор события не может добавить запрос на участие в своём событии (Ожидается код ошибки 409)
-    нельзя участвовать в неопубликованном событии (Ожидается код ошибки 409)
-    если у события достигнут лимит запросов на участие - необходимо вернуть ошибку (Ожидается код ошибки 409)
-    если для события отключена пре-модерация запросов на участие, то запрос должен автоматически перейти в состояние подтвержденного
-*/
         return requestService.addRequest(userId, eventId);
     }
 
     @PatchMapping("/{userId}/requests/{requestId}/cancel")
     ParticipationRequestDto cancelParticipationRequest(@PathVariable Long userId,
-                                                       @RequestParam Long requestId) {
+                                                       @PathVariable Long requestId) {
         return requestService.cancelRequest(userId, requestId);
     }
 }

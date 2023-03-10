@@ -30,13 +30,13 @@ public class CategoryAdminController {
     }
 
     @DeleteMapping("/{catId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     void deleteCategory(@PathVariable Long catId) {
         logger.debug("delete category " + catId);
         categoryService.deleteCategory(catId);
     }
 
     @PatchMapping("/{catId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     CategoryDto pathUser(@PathVariable Long catId,
                          @RequestBody @Valid CategoryDto categoryDto) {
         logger.debug("update category " + catId);
