@@ -9,10 +9,7 @@ import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.RequestMapper;
-import ru.practicum.model.Event;
-import ru.practicum.model.ParticipationRequest;
-import ru.practicum.model.ParticipationRequestStatus;
-import ru.practicum.model.User;
+import ru.practicum.model.*;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
 import ru.practicum.service.RequestService;
@@ -46,7 +43,8 @@ public class RequestServiceImpl implements RequestService {
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToAddRequest(user, event);
         ParticipationRequest participationRequest = new ParticipationRequest(
-                null, LocalDateTime.now(), event, user, ParticipationRequestStatus.PENDING);
+                null, LocalDateTime.now(), event, user,
+                event.getRequestModeration() ? ParticipationRequestStatus.PENDING : ParticipationRequestStatus.CONFIRMED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
     }
 
@@ -87,23 +85,26 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
-        return requestRepository.getRequestsByStatusAndEventIds(events, ParticipationRequestStatus.CONFIRMED.name()).
+        return requestRepository.findByEvent_IdInAndStatusIs(
+                        events, ParticipationRequestStatus.CONFIRMED).
                 stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
     }
 
     @Override
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.
-                getRequestsByStatusAndEventId(eventId, ParticipationRequestStatus.CONFIRMED.name()).size();
+        return requestRepository.findByEvent_IdIsAndStatusIs(
+                eventId, ParticipationRequestStatus.CONFIRMED).size();
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {
-        if (event.getParticipantLimit() == 0 || event.getParticipantLimit() >= requests.size()) {
-            requests.forEach(r -> r.setStatus(ParticipationRequestStatus.CONFIRMED));
-        }
         List<ParticipationRequest> unconfirmedRequests = requests.stream()
                 .filter(r -> r.getStatus() != ParticipationRequestStatus.CONFIRMED).collect(Collectors.toList());
         int freeLimit = event.getParticipantLimit() - getCountConfirmedRequestsByEventId(event.getId());
+
+        if (event.getParticipantLimit() == 0 || event.getParticipantLimit() >= requests.size()) {
+            requests.forEach(r -> r.setStatus(ParticipationRequestStatus.CONFIRMED));
+        }
+
         if (unconfirmedRequests.size() <= freeLimit) {
             unconfirmedRequests.forEach(r -> r.setStatus(ParticipationRequestStatus.CONFIRMED));
         } else {
@@ -124,12 +125,34 @@ public class RequestServiceImpl implements RequestService {
         if (!event.getInitiator().equals(user)) {
             throw new AccessFailedException("user with id=" + user.getId() + " can't change event data with id=" + event.getId());
         }
+        if (event.getParticipantLimit() <=
+                getCountConfirmedRequestsByEventId(event.getId())) {
+            throw new AccessFailedException("event with id=" + event.getId() + " has max participants");
+        }
     }
 
     private void checkUserAccessToAddRequest(User user, Event event) {
         if (event.getInitiator().equals(user)) {
-            throw new AccessFailedException("user with id=" + user.getId() + " initiator for event with id=" + event.getId());
+            throw new AccessFailedException("user with id=" + user.getId() +
+                    " initiator for event with id=" + event.getId());
         }
+        if (requestRepository.findByEventAndRequester(event, user).size() > 0) {
+            throw new AccessFailedException("user with id=" + user.getId() +
+                    " have request to event with id=" + event.getId());
+        }
+        if (!event.getState().equals(EventState.PUBLISHED)) {
+            throw new AccessFailedException("user with id=" + user.getId() +
+                    " can't create request to unpublished event with id=" + event.getId());
+        }
+        if (event.getParticipantLimit() <=
+                //(requestRepository.findByEvent(event).size()
+                //        - requestRepository.getRequestsByStatusAndEventId(event.getId(),
+                //        String.valueOf(ParticipationRequestStatus.REJECTED.ordinal())).size())
+                getCountConfirmedRequestsByEventId(event.getId())
+        ) {
+            throw new AccessFailedException("event with id=" + event.getId() + " has max participants");
+        }
+
     }
 
     private Event getEventByIdRaw(Long eventId) {

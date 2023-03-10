@@ -17,6 +17,7 @@ public class ParticipationRequest {
     @ManyToOne
     @JoinColumn(name = "requester_id")
     private User requester;
+    @Enumerated(EnumType.STRING)
     private ParticipationRequestStatus status;
 
     public ParticipationRequest() {

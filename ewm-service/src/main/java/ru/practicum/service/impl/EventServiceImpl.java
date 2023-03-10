@@ -47,20 +47,6 @@ public class EventServiceImpl implements EventService {
     @Autowired
     EntityManager entityManager;
 
-    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
-        if (event.getEventDate() != null && event.getEventDate().isAfter(LocalDateTime.now().minusHours(1))) {
-            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
-        }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
-                event.getState() != EventState.PENDING) {
-            throw new AccessFailedException("Event with id=" + eventId + " can't published");
-        }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
-                event.getState() == EventState.PUBLISHED) {
-            throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
-        }
-    }
-
     @Override
     public List<EventFullDto> getEvents(List<Long> users, List<EventFullDto.StateEnum> states, List<Long> categories,
                                         LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size) {
@@ -114,13 +100,24 @@ public class EventServiceImpl implements EventService {
         return convertEventsToShortDto(events);
     }
 
-    @Override
-    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        User user = userService.getUserByIdRaw(userId);
-        Category category = categoryService.getCategoryByIdRaw(newEventDto.getCategory());
-        return EventMapper.toEventFullDto(
-                eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
+    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
+                event.getState() != EventState.PENDING) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't published");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
+                event.getState() == EventState.PUBLISHED) {
+            throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
+        }
+        if (updateEventAdminRequest.getEventDate() != null &&
+                updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
     }
+
 
     @Override
     public EventFullDto getEventById(Long userId, Long eventId) {
@@ -132,16 +129,13 @@ public class EventServiceImpl implements EventService {
         return convertEventToFullDto(event);
     }
 
-    @Override
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event event = getEventByIdRaw(eventId);
-        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new AccessFailedException("Event with id=" + eventId + " is too old");
+    private static void validToAdd(NewEventDto newEventDto) {
+        if (newEventDto.getEventDate() != null &&
+                newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event can't create by time start");
         }
-        updateEventByRequest(event, updateEventUserRequest);
-        Event eventUpdated = eventRepository.save(event);
-        return convertEventToFullDto(eventUpdated);
     }
+
 
     @Override
     public List<EventShortDto> getEventsByFilter(String text, List<Long> categories, Boolean paid,
@@ -305,4 +299,37 @@ public class EventServiceImpl implements EventService {
         }
     }
 
+    private static void validToUpdateByUser(Event event, UpdateEventUserRequest updateEventUserRequest) {
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new AccessFailedException("Event with id=" + event.getId() + " can't update by time start");
+        }
+        if (event.getState() == EventState.PUBLISHED) {
+            throw new AccessFailedException("published event with id=" + event.getId() + "can't be updated");
+        }
+        if (updateEventUserRequest.getEventDate() != null &&
+                updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new AccessFailedException("Event with id=" + event.getId() + " can't update by time start");
+        }
+    }
+
+    @Override
+    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
+        validToAdd(newEventDto);
+        User user = userService.getUserByIdRaw(userId);
+        Category category = categoryService.getCategoryByIdRaw(newEventDto.getCategory());
+        return EventMapper.toEventFullDto(
+                eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
+    }
+
+    @Override
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
+        Event event = getEventByIdRaw(eventId);
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new AccessFailedException("Event with id=" + eventId + " is too old");
+        }
+        validToUpdateByUser(event, updateEventUserRequest);
+        updateEventByRequest(event, updateEventUserRequest);
+        Event eventUpdated = eventRepository.save(event);
+        return convertEventToFullDto(eventUpdated);
+    }
 }

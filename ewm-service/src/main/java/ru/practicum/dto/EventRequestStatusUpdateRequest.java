@@ -14,6 +14,7 @@ public final class EventRequestStatusUpdateRequest {
     private final List<Long> requestIds;
     private final StatusEnum status;
 
+    @JsonCreator
     public EventRequestStatusUpdateRequest(List<Long> requestIds, StatusEnum status) {
         this.requestIds = requestIds;
         this.status = status;
