@@ -91,8 +91,8 @@ public class RequestServiceImpl implements RequestService {
     }
 
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.findByEvent_IdIsAndStatusIs(
-                eventId, ParticipationRequestStatus.CONFIRMED).size();
+        return requestRepository.countByEvent_IdIsAndStatusIs(
+                eventId, ParticipationRequestStatus.CONFIRMED);
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {

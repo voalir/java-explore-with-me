@@ -365,7 +365,7 @@ public class EventServiceImpl implements EventService {
     }
 
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.findByEvent_IdIsAndStatusIs(
-                eventId, ParticipationRequestStatus.CONFIRMED).size();
+        return requestRepository.countByEvent_IdIsAndStatusIs(
+                eventId, ParticipationRequestStatus.CONFIRMED);
     }
 }
