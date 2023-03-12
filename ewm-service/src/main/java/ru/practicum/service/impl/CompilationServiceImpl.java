@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
+    public static final String EVENTS_POINT = "/events/";
     private final CompilationRepository compilationRepository;
     private final StatClient statClient;
     private final EventRepository eventRepository;
@@ -48,14 +49,18 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Set<Event> events = new HashSet<>(getEventsByIdsRaw(newCompilationDto.getEvents()));
-        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(newCompilationDto.getEvents());
+        Compilation compilation = compilationRepository.save(CompilationMapper.toCompilation(newCompilationDto, events));
+        return getCompilationDto(compilation);
+    }
+
+    private CompilationDto getCompilationDto(Compilation compilation) {
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
+                .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                newCompilationDto.getEvents().stream()
-                        .map(id -> "/events/" + id).toArray(String[]::new), false).stream().collect(
+                compilation.getEvents().stream()
+                        .map(id -> EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
                 Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-        return CompilationMapper.toCompilationDto(
-                compilationRepository.save(CompilationMapper.toCompilation(newCompilationDto, events)),
-                confirmedRequests, views);
+        return CompilationMapper.toCompilationDto(compilation, confirmedRequests, views);
     }
 
     @Override
@@ -67,25 +72,20 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
-        Compilation compilation = getCompilationByIdRaw(compId);
+        Compilation compilationToUpdate = getCompilationByIdRaw(compId);
         if (updateCompilationRequest.getPinned() != null) {
-            compilation.setPinned(updateCompilationRequest.getPinned());
+            compilationToUpdate.setPinned(updateCompilationRequest.getPinned());
         }
         if (updateCompilationRequest.getEvents() != null) {
-            compilation.setEvents(new HashSet<>(getEventsByIdsRaw(updateCompilationRequest.getEvents())));
+            compilationToUpdate.setEvents(new HashSet<>(getEventsByIdsRaw(updateCompilationRequest.getEvents())));
         }
         if (updateCompilationRequest.getTitle() != null) {
-            compilation.setTitle(updateCompilationRequest.getTitle());
+            compilationToUpdate.setTitle(updateCompilationRequest.getTitle());
         }
-        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
-                .stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                compilation.getEvents().stream()
-                        .map(e -> "/events/" + e.getId()).toArray(String[]::new), false).stream().collect(
-                Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-        return CompilationMapper.toCompilationDto(compilationRepository.save(compilation),
-                confirmedRequests, views);
+        Compilation compilation = compilationRepository.save(compilationToUpdate);
+        return getCompilationDto(compilation);
     }
+
 
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
@@ -97,7 +97,7 @@ public class CompilationServiceImpl implements CompilationService {
         Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(events
                 .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
+                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
                 .stream().collect(Collectors.toMap(
                         s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
         return compilations.stream().map(compilation ->
@@ -107,13 +107,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = getCompilationByIdRaw(compId);
-        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
-                .stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        compilation.getEvents().stream()
-                                .map(e -> "/events/" + e.getId()).toArray(String[]::new), false).stream()
-                .collect(Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-        return CompilationMapper.toCompilationDto(compilation, confirmedRequests, views);
+        return getCompilationDto(compilation);
     }
 
     public Compilation getCompilationByIdRaw(Long compId) {

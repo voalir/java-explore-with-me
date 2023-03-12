@@ -1,6 +1,7 @@
 package ru.practicum.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ru.practicum.model.Event;
 import ru.practicum.model.ParticipationRequest;
@@ -16,7 +17,9 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
 
     List<ParticipationRequest> findByEvent(Event event);
 
-    List<ParticipationRequest> findByEventAndRequester(Event event, User user);
+    @Query("select new java.lang.Boolean(count(*) > 0) from ParticipationRequest " +
+            "where event = ?1 and requester = ?2")
+    Boolean hasRequestToEventByUser(Event event, User user);
 
     Integer countByEvent_IdIsAndStatusIs(Long eventId, ParticipationRequestStatus status);
 

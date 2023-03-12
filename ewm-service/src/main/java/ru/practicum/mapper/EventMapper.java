@@ -15,7 +15,7 @@ public final class EventMapper {
                 confirmedRequests, event.getCreatedOn(), event.getDescription(), event.getEventDate(),
                 event.getId(), UserMapper.toUserShortDto(event.getInitiator()), new LocationDto(event.getLat(), event.getLon()),
                 event.getPaid(), event.getParticipantLimit(), event.getPublishedOn(), event.getRequestModeration(),
-                EventFullDto.StateEnum.valueOf(event.getState().name()), event.getTitle(), views);
+                EventFullDto.State.valueOf(event.getState().name()), event.getTitle(), views);
     }
 
     public static EventShortDto toEventShortDto(Event event, Long confirmedRequests, Long views) {
@@ -53,7 +53,7 @@ public final class EventMapper {
         }
     }
 
-    public static EventState toEventState(EventFullDto.StateEnum stateActionEnum) {
+    public static EventState toEventState(EventFullDto.State stateActionEnum) {
         switch (stateActionEnum) {
             case PUBLISHED:
                 return EventState.PUBLISHED;

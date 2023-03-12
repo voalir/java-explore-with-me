@@ -135,7 +135,7 @@ public class RequestServiceImpl implements RequestService {
             throw new AccessFailedException("user with id=" + user.getId() +
                     " initiator for event with id=" + event.getId());
         }
-        if (requestRepository.findByEventAndRequester(event, user).size() > 0) {
+        if (requestRepository.hasRequestToEventByUser(event, user)) {
             throw new AccessFailedException("user with id=" + user.getId() +
                     " have request to event with id=" + event.getId());
         }
