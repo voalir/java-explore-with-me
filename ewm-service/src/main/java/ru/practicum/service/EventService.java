@@ -30,4 +30,6 @@ public interface EventService {
     Event getEventByIdRaw(Long eventId);
 
     List<Event> getEventsByIdsRaw(List<Long> events);
+
+    List<EventShortDto> getEventByLocation(Long locationId, Integer from, Integer size, HttpServletRequest request);
 }
