@@ -2,7 +2,6 @@ package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
@@ -130,32 +129,11 @@ public final class EventFullDto {
      * Список состояний жизненного цикла события
      */
     public enum StateEnum {
-        PENDING("PENDING"),
+        PENDING,
 
-        PUBLISHED("PUBLISHED"),
+        PUBLISHED,
 
-        CANCELED("CANCELED");
+        CANCELED;
 
-        private final String value;
-
-        StateEnum(String value) {
-            this.value = value;
-        }
-
-        @JsonCreator
-        public static StateEnum fromValue(String text) {
-            for (StateEnum b : StateEnum.values()) {
-                if (String.valueOf(b.value).equals(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
     }
 }
