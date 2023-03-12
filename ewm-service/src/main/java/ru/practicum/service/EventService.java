@@ -2,7 +2,6 @@ package ru.practicum.service;
 
 
 import ru.practicum.dto.*;
-import ru.practicum.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -26,7 +25,5 @@ public interface EventService {
                                           LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest request);
 
     EventFullDto getEventPublishedById(Long id, HttpServletRequest request);
-
-    Event getEventByIdRaw(Long eventId);
 
 }

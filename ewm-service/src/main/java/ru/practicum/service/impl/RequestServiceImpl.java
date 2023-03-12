@@ -12,34 +12,39 @@ import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.*;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
+import ru.practicum.repository.UserRepository;
 import ru.practicum.service.RequestService;
-import ru.practicum.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
 
+    private final RequestRepository requestRepository;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+
     @Autowired
-    RequestRepository requestRepository;
-    @Autowired
-    EventRepository eventRepository;
-    @Autowired
-    UserService userService;
+    public RequestServiceImpl(RequestRepository requestRepository, EventRepository eventRepository, UserRepository userRepository) {
+        this.requestRepository = requestRepository;
+        this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<ParticipationRequestDto> getRequests(Long userId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         return requestRepository.findByRequester(user).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToAddRequest(user, event);
         ParticipationRequest participationRequest = new ParticipationRequest(
@@ -49,8 +54,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        userService.getUserByIdRaw(userId);
+        getUserByIdRaw(userId);
         ParticipationRequest participationRequest = getParticipationRequestByIdRaw(requestId);
         participationRequest.setStatus(ParticipationRequestStatus.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
@@ -58,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToEventRequest(user, event);
         return requestRepository.findByEvent(event).stream().map(RequestMapper::toParticipationRequestDto)
@@ -69,7 +75,7 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public EventRequestStatusUpdateResult updateRequestStatus(
             Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToUpdateRequest(user, event);
         List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
@@ -84,14 +90,6 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toEventRequestStatusUpdateResult(requests);
     }
 
-    @Override
-    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
-        return requestRepository.findByEvent_IdInAndStatusIs(
-                        events, ParticipationRequestStatus.CONFIRMED)
-                .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
-    }
-
-    @Override
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
         return requestRepository.findByEvent_IdIsAndStatusIs(
                 eventId, ParticipationRequestStatus.CONFIRMED).size();
@@ -162,5 +160,10 @@ public class RequestServiceImpl implements RequestService {
     private Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
+    }
+
+    public User getUserByIdRaw(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("user with id=" + userId + " not found"));
     }
 }

@@ -3,20 +3,18 @@ package ru.practicum.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatClient;
 import ru.practicum.dto.*;
 import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
-import ru.practicum.model.Category;
-import ru.practicum.model.Event;
-import ru.practicum.model.EventState;
-import ru.practicum.model.User;
+import ru.practicum.model.*;
 import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.RequestRepository;
+import ru.practicum.repository.UserRepository;
 import ru.practicum.service.EventService;
-import ru.practicum.service.RequestService;
-import ru.practicum.service.UserService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -32,20 +30,26 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
 
-    @Autowired
-    EventRepository eventRepository;
-    @Autowired
-    UserService userService;
-    @Autowired
-    RequestService requestService;
-    @Autowired
-    StatClient statClient;
-    @Autowired
-    CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
+    private final StatClient statClient;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final RequestRepository requestRepository;
+
     @Autowired
     EntityManager entityManager;
+
+    @Autowired
+    public EventServiceImpl(EventRepository eventRepository, StatClient statClient, CategoryRepository categoryRepository, UserRepository userRepository, RequestRepository requestRepository) {
+        this.eventRepository = eventRepository;
+        this.statClient = statClient;
+        this.categoryRepository = categoryRepository;
+        this.userRepository = userRepository;
+        this.requestRepository = requestRepository;
+    }
 
     @Override
     public List<EventFullDto> getEvents(List<Long> users, List<EventFullDto.StateEnum> states, List<Long> categories,
@@ -73,7 +77,7 @@ public class EventServiceImpl implements EventService {
                 .orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
         List<Event> events = entityManager.createQuery(query).setFirstResult(from).setMaxResults(size)
                 .getResultList();
-        Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
@@ -85,6 +89,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
         Event event = getEventByIdRaw(eventId);
         validToUpdate(eventId, updateEventAdminRequest, event);
@@ -120,7 +125,7 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventById(Long userId, Long eventId, HttpServletRequest request) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         if (!event.getInitiator().equals(user)) {
             throw new NotFoundException("event with id=" + eventId + " no found");
@@ -172,8 +177,8 @@ public class EventServiceImpl implements EventService {
                 .orderBy(criteriaBuilder.asc(eventRoot.get("eventDate")));
         List<Event> events = entityManager.createQuery(query).setFirstResult(from).setMaxResults(size)
                 .getResultList();
-        Map<Long, Long> confirmedRequests = requestService
-                .getCountConfirmedRequestsByEventIds(events.stream().map(Event::getId).collect(Collectors.toList()));
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
+                events.stream().map(Event::getId).collect(Collectors.toList()));
         if (onlyAvailable != null && onlyAvailable) {
             events = events.stream()
                     .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
@@ -203,21 +208,20 @@ public class EventServiceImpl implements EventService {
         return convertEventToFullDto(event);
     }
 
-    @Override
     public Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
     }
 
     private EventFullDto convertEventToFullDto(Event event) {
-        Long confirmedRequests = (long) requestService.getCountConfirmedRequestsByEventId(event.getId());
+        Long confirmedRequests = (long) getCountConfirmedRequestsByEventId(event.getId());
         Long views = (long) statClient.getStats(
                 LocalDateTime.now().minusYears(10), LocalDateTime.now(), new String[]{"/events/" + event.getId()}, false).size();
         return EventMapper.toEventFullDto(event, confirmedRequests, views);
     }
 
     private List<EventShortDto> convertEventsToShortDto(List<Event> events) {
-        Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
@@ -311,15 +315,17 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         validToAdd(newEventDto);
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Category category = getCategoryByIdRaw(newEventDto.getCategory());
         return EventMapper.toEventFullDto(
                 eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
     }
 
     @Override
+    @Transactional
     public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         Event event = getEventByIdRaw(eventId);
         if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
@@ -345,5 +351,21 @@ public class EventServiceImpl implements EventService {
     public Category getCategoryByIdRaw(Long category) {
         return categoryRepository.findById(category).orElseThrow(
                 () -> new NotFoundException("category with id=" + category + " not found"));
+    }
+
+    public User getUserByIdRaw(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("user with id=" + userId + " not found"));
+    }
+
+    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
+        return requestRepository.findByEvent_IdInAndStatusIs(
+                        events, ParticipationRequestStatus.CONFIRMED)
+                .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
+    }
+
+    public Integer getCountConfirmedRequestsByEventId(Long eventId) {
+        return requestRepository.findByEvent_IdIsAndStatusIs(
+                eventId, ParticipationRequestStatus.CONFIRMED).size();
     }
 }

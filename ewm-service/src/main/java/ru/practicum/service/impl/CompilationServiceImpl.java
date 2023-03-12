@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatClient;
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
@@ -13,10 +14,11 @@ import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
+import ru.practicum.model.ParticipationRequestStatus;
 import ru.practicum.repository.CompilationRepository;
 import ru.practicum.repository.EventRepository;
+import ru.practicum.repository.RequestRepository;
 import ru.practicum.service.CompilationService;
-import ru.practicum.service.RequestService;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -26,22 +28,27 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
+    private final CompilationRepository compilationRepository;
+    private final StatClient statClient;
+    private final EventRepository eventRepository;
+    private final RequestRepository requestRepository;
+
     @Autowired
-    CompilationRepository compilationRepository;
-    @Autowired
-    RequestService requestService;
-    @Autowired
-    StatClient statClient;
-    @Autowired
-    EventRepository eventRepository;
+    public CompilationServiceImpl(CompilationRepository compilationRepository, StatClient statClient, EventRepository eventRepository, RequestRepository requestRepository) {
+        this.compilationRepository = compilationRepository;
+        this.statClient = statClient;
+        this.eventRepository = eventRepository;
+        this.requestRepository = requestRepository;
+    }
 
     @Override
+    @Transactional
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
         Set<Event> events = new HashSet<>(getEventsByIdsRaw(newCompilationDto.getEvents()));
-        Map<Long, Long> confirmedRequests = requestService
-                .getCountConfirmedRequestsByEventIds(newCompilationDto.getEvents());
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(newCompilationDto.getEvents());
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                 newCompilationDto.getEvents().stream()
                         .map(id -> "/events/" + id).toArray(String[]::new), false).stream().collect(
@@ -52,11 +59,13 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilation(Long compId) {
         compilationRepository.deleteById(compId);
     }
 
     @Override
+    @Transactional
     public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         Compilation compilation = getCompilationByIdRaw(compId);
         if (updateCompilationRequest.getPinned() != null) {
@@ -68,7 +77,7 @@ public class CompilationServiceImpl implements CompilationService {
         if (updateCompilationRequest.getTitle() != null) {
             compilation.setTitle(updateCompilationRequest.getTitle());
         }
-        Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(compilation.getEvents()
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
                 .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                 compilation.getEvents().stream()
@@ -85,7 +94,7 @@ public class CompilationServiceImpl implements CompilationService {
                 Example.of(new Compilation(null, null, pinned, null)), pageRequest).toList();
         List<Event> events = compilations.stream().map(Compilation::getEvents)
                 .flatMap(Set::stream).collect(Collectors.toList());
-        Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(events
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(events
                 .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         events.stream().map(e -> "/events/" + e.getId()).toArray(String[]::new), false)
@@ -98,7 +107,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilationById(Long compId) {
         Compilation compilation = getCompilationByIdRaw(compId);
-        Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(compilation.getEvents()
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
                 .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
                         compilation.getEvents().stream()
@@ -115,4 +124,11 @@ public class CompilationServiceImpl implements CompilationService {
     public List<Event> getEventsByIdsRaw(List<Long> events) {
         return eventRepository.findAllById(events);
     }
+
+    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
+        return requestRepository.findByEvent_IdInAndStatusIs(
+                        events, ParticipationRequestStatus.CONFIRMED)
+                .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
+    }
+
 }
