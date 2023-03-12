@@ -16,8 +16,12 @@ import java.util.List;
 @RequestMapping(path = "/admin/events")
 public class EventAdminController {
 
+    private final EventService eventService;
+
     @Autowired
-    EventService eventService;
+    public EventAdminController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @GetMapping
     List<EventFullDto> getEvents(@RequestParam(required = false) List<Long> users,

@@ -19,10 +19,15 @@ import java.util.List;
 @Validated
 public class EventPrivateController {
 
+    private final EventService eventService;
+
+    private final RequestService requestService;
+
     @Autowired
-    EventService eventService;
-    @Autowired
-    RequestService requestService;
+    public EventPrivateController(EventService eventService, RequestService requestService) {
+        this.eventService = eventService;
+        this.requestService = requestService;
+    }
 
     @GetMapping("/{userId}/events")
     List<EventShortDto> getEvents(@PathVariable Long userId,

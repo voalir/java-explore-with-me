@@ -17,8 +17,12 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventPublicController {
 
+    private final EventService eventService;
+
     @Autowired
-    EventService eventService;
+    public EventPublicController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @GetMapping
     List<EventShortDto> getEvents(@RequestParam(required = false) String text,

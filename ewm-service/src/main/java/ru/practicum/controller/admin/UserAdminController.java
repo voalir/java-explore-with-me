@@ -18,8 +18,13 @@ import java.util.List;
 @Validated
 public class UserAdminController {
 
+
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public UserAdminController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
     List<UserDto> getUsers(@RequestParam List<Long> ids,

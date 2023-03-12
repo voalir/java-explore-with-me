@@ -16,8 +16,12 @@ import javax.validation.Valid;
 @Validated
 public class CompilationAdminController {
 
+    private final CompilationService compilationService;
+
     @Autowired
-    CompilationService compilationService;
+    public CompilationAdminController(CompilationService compilationService) {
+        this.compilationService = compilationService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
