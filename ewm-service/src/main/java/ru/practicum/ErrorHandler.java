@@ -26,7 +26,7 @@ public class ErrorHandler {
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "not found",
-                ApiError.StatusEnum._404_NOT_FOUND,
+                ApiError.Status.STATUS_404_NOT_FOUND,
                 LocalDateTime.now());
     }
 
@@ -45,7 +45,7 @@ public class ErrorHandler {
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "value violation",
-                ApiError.StatusEnum._409_CONFLICT,
+                ApiError.Status.STATUS_409_CONFLICT,
                 LocalDateTime.now());
     }
 
@@ -56,7 +56,7 @@ public class ErrorHandler {
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "no access",
-                ApiError.StatusEnum._409_CONFLICT,
+                ApiError.Status.STATUS_409_CONFLICT,
                 LocalDateTime.now());
     }
 }
