@@ -14,13 +14,15 @@ import ru.practicum.mapper.CompilationMapper;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 import ru.practicum.repository.CompilationRepository;
+import ru.practicum.repository.EventRepository;
 import ru.practicum.service.CompilationService;
-import ru.practicum.service.EventService;
 import ru.practicum.service.RequestService;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,15 +31,15 @@ public class CompilationServiceImpl implements CompilationService {
     @Autowired
     CompilationRepository compilationRepository;
     @Autowired
-    EventService eventService;
-    @Autowired
     RequestService requestService;
     @Autowired
     StatClient statClient;
+    @Autowired
+    EventRepository eventRepository;
 
     @Override
     public CompilationDto addCompilation(NewCompilationDto newCompilationDto) {
-        List<Event> events = eventService.getEventsByIdsRaw(newCompilationDto.getEvents());
+        Set<Event> events = new HashSet<>(getEventsByIdsRaw(newCompilationDto.getEvents()));
         Map<Long, Long> confirmedRequests = requestService
                 .getCountConfirmedRequestsByEventIds(newCompilationDto.getEvents());
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
@@ -61,7 +63,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilation.setPinned(updateCompilationRequest.getPinned());
         }
         if (updateCompilationRequest.getEvents() != null) {
-            compilation.setEvents(eventService.getEventsByIdsRaw(updateCompilationRequest.getEvents()));
+            compilation.setEvents(new HashSet<>(getEventsByIdsRaw(updateCompilationRequest.getEvents())));
         }
         if (updateCompilationRequest.getTitle() != null) {
             compilation.setTitle(updateCompilationRequest.getTitle());
@@ -82,7 +84,7 @@ public class CompilationServiceImpl implements CompilationService {
         List<Compilation> compilations = compilationRepository.findAll(
                 Example.of(new Compilation(null, null, pinned, null)), pageRequest).toList();
         List<Event> events = compilations.stream().map(Compilation::getEvents)
-                .flatMap(List::stream).distinct().collect(Collectors.toList());
+                .flatMap(Set::stream).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = requestService.getCountConfirmedRequestsByEventIds(events
                 .stream().map(Event::getId).collect(Collectors.toList()));
         Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
@@ -108,5 +110,9 @@ public class CompilationServiceImpl implements CompilationService {
     public Compilation getCompilationByIdRaw(Long compId) {
         return compilationRepository.findById(compId).orElseThrow(
                 () -> new NotFoundException("compilation with id=" + compId + " not found"));
+    }
+
+    public List<Event> getEventsByIdsRaw(List<Long> events) {
+        return eventRepository.findAllById(events);
     }
 }

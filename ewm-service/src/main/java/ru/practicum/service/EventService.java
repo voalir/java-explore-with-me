@@ -29,5 +29,4 @@ public interface EventService {
 
     Event getEventByIdRaw(Long eventId);
 
-    List<Event> getEventsByIdsRaw(List<Long> events);
 }

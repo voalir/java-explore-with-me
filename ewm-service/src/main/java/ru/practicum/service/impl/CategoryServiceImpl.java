@@ -49,7 +49,6 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.toCategoryDto(getCategoryByIdRaw(catId));
     }
 
-    @Override
     public Category getCategoryByIdRaw(Long category) {
         return categoryRepository.findById(category).orElseThrow(
                 () -> new NotFoundException("category with id=" + category + " not found"));

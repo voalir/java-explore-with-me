@@ -1,7 +1,7 @@
 package ru.practicum.model;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "compilations")
@@ -15,11 +15,11 @@ public class Compilation {
             joinColumns = @JoinColumn(name = "compilation_id"),
             inverseJoinColumns = @JoinColumn(name = "event_id")
     )
-    private List<Event> events;
+    private Set<Event> events;
     private Boolean pinned;
     private String title;
 
-    public Compilation(Long id, List<Event> events, Boolean pinned, String title) {
+    public Compilation(Long id, Set<Event> events, Boolean pinned, String title) {
         this.id = id;
         this.events = events;
         this.pinned = pinned;
@@ -37,11 +37,11 @@ public class Compilation {
         this.id = id;
     }
 
-    public List<Event> getEvents() {
+    public Set<Event> getEvents() {
         return events;
     }
 
-    public void setEvents(List<Event> events) {
+    public void setEvents(Set<Event> events) {
         this.events = events;
     }
 

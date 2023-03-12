@@ -5,12 +5,12 @@ import ru.practicum.dto.NewCompilationDto;
 import ru.practicum.model.Compilation;
 import ru.practicum.model.Event;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public final class CompilationMapper {
-    public static Compilation toCompilation(NewCompilationDto newCompilationDto, List<Event> events) {
+    public static Compilation toCompilation(NewCompilationDto newCompilationDto, Set<Event> events) {
         return new Compilation(null, events, newCompilationDto.getPinned(), newCompilationDto.getTitle());
     }
 

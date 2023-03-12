@@ -12,8 +12,8 @@ import ru.practicum.model.Category;
 import ru.practicum.model.Event;
 import ru.practicum.model.EventState;
 import ru.practicum.model.User;
+import ru.practicum.repository.CategoryRepository;
 import ru.practicum.repository.EventRepository;
-import ru.practicum.service.CategoryService;
 import ru.practicum.service.EventService;
 import ru.practicum.service.RequestService;
 import ru.practicum.service.UserService;
@@ -37,14 +37,13 @@ public class EventServiceImpl implements EventService {
     @Autowired
     EventRepository eventRepository;
     @Autowired
-    CategoryService categoryService;
-    @Autowired
     UserService userService;
     @Autowired
     RequestService requestService;
     @Autowired
     StatClient statClient;
-
+    @Autowired
+    CategoryRepository categoryRepository;
     @Autowired
     EntityManager entityManager;
 
@@ -210,11 +209,6 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
     }
 
-    @Override
-    public List<Event> getEventsByIdsRaw(List<Long> events) {
-        return eventRepository.findAllById(events);
-    }
-
     private EventFullDto convertEventToFullDto(Event event) {
         Long confirmedRequests = (long) requestService.getCountConfirmedRequestsByEventId(event.getId());
         Long views = (long) statClient.getStats(
@@ -249,7 +243,7 @@ public class EventServiceImpl implements EventService {
             event.setAnnotation(updateEventAdminRequest.getAnnotation());
         }
         if (updateEventAdminRequest.getCategory() != null) {
-            event.setCategory(categoryService.getCategoryByIdRaw(updateEventAdminRequest.getCategory()));
+            event.setCategory(getCategoryByIdRaw(updateEventAdminRequest.getCategory()));
         }
         if (updateEventAdminRequest.getDescription() != null) {
             event.setDescription(updateEventAdminRequest.getDescription());
@@ -283,7 +277,7 @@ public class EventServiceImpl implements EventService {
             event.setAnnotation(updateEventUserRequest.getAnnotation());
         }
         if (updateEventUserRequest.getCategory() != null) {
-            event.setCategory(categoryService.getCategoryByIdRaw(updateEventUserRequest.getCategory()));
+            event.setCategory(getCategoryByIdRaw(updateEventUserRequest.getCategory()));
         }
         if (updateEventUserRequest.getDescription() != null) {
             event.setDescription(updateEventUserRequest.getDescription());
@@ -320,7 +314,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         validToAdd(newEventDto);
         User user = userService.getUserByIdRaw(userId);
-        Category category = categoryService.getCategoryByIdRaw(newEventDto.getCategory());
+        Category category = getCategoryByIdRaw(newEventDto.getCategory());
         return EventMapper.toEventFullDto(
                 eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
     }
@@ -346,5 +340,10 @@ public class EventServiceImpl implements EventService {
                 LocalDateTime.now()
         );
         statClient.registerHit(endpointHitDto);
+    }
+
+    public Category getCategoryByIdRaw(Long category) {
+        return categoryRepository.findById(category).orElseThrow(
+                () -> new NotFoundException("category with id=" + category + " not found"));
     }
 }
