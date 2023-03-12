@@ -215,6 +215,11 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findAllById(events);
     }
 
+    @Override
+    public List<EventShortDto> getEventByLocation(Long locationId, Integer from, Integer size, HttpServletRequest request) {
+        return null;
+    }
+
     private EventFullDto convertEventToFullDto(Event event) {
         Long confirmedRequests = (long) requestService.getCountConfirmedRequestsByEventId(event.getId());
         Long views = (long) statClient.getStats(

@@ -16,7 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "/admin/locations")
 @Validated
-public class EventLocationAdminController {
+public class LocationAdminController {
 
     @Autowired
     LocationService locationService;
