@@ -3,9 +3,11 @@ package ru.practicum.dto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonValue;
+import ru.practicum.exception.ErrorRequestException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Сведения об ошибке
@@ -197,11 +199,11 @@ public final class ApiError {
         @JsonCreator
         public static Status fromValue(String text) {
             for (Status b : Status.values()) {
-                if (String.valueOf(b.value).equals(text)) {
+                if (Objects.equals(b.value, text)) {
                     return b;
                 }
             }
-            return null;
+            throw new ErrorRequestException("status " + text + " not supported");
         }
 
         @Override
