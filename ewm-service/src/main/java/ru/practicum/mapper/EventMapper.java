@@ -13,7 +13,7 @@ public final class EventMapper {
     public static EventFullDto toEventFullDto(Event event, Long confirmedRequests, Long views) {
         return new EventFullDto(event.getAnnotation(), CategoryMapper.toCategoryDto(event.getCategory()),
                 confirmedRequests, event.getCreatedOn(), event.getDescription(), event.getEventDate(),
-                event.getId(), UserMapper.toUserShortDto(event.getInitiator()), new Location(event.getLat(), event.getLon()),
+                event.getId(), UserMapper.toUserShortDto(event.getInitiator()), new LocationDto(event.getLat(), event.getLon()),
                 event.getPaid(), event.getParticipantLimit(), event.getPublishedOn(), event.getRequestModeration(),
                 EventFullDto.StateEnum.valueOf(event.getState().name()), event.getTitle(), views);
     }

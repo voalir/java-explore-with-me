@@ -24,7 +24,7 @@ public final class NewEventDto {
     @NotNull
     private final LocalDateTime eventDate;
     @NotNull
-    private final Location location;
+    private final LocationDto location;
     private final Boolean paid;
     private final Integer participantLimit;
     private final Boolean requestModeration;
@@ -33,13 +33,13 @@ public final class NewEventDto {
     private final String title;
 
     @JsonCreator
-    public NewEventDto(String annotation, Long category, String description, LocalDateTime eventDate, Location location,
+    public NewEventDto(String annotation, Long category, String description, LocalDateTime eventDate, LocationDto locationDto,
                        Boolean paid, Integer participantLimit, Boolean requestModeration, String title) {
         this.annotation = annotation;
         this.category = category;
         this.description = description;
         this.eventDate = eventDate;
-        this.location = location;
+        this.location = locationDto;
         this.paid = paid;
         this.participantLimit = participantLimit;
         this.requestModeration = requestModeration;
@@ -62,7 +62,7 @@ public final class NewEventDto {
         return eventDate;
     }
 
-    public Location getLocation() {
+    public LocationDto getLocation() {
         return location;
     }
 

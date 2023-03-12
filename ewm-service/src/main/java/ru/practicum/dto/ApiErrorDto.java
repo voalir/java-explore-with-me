@@ -13,7 +13,7 @@ import java.util.Objects;
  * Сведения об ошибке
  */
 
-public final class ApiError {
+public final class ApiErrorDto {
 
     private final List<String> errors;
     private final String message;
@@ -22,7 +22,7 @@ public final class ApiError {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
     private final LocalDateTime timestamp;
 
-    public ApiError(List<String> errors, String message, String reason, Status status, LocalDateTime timestamp) {
+    public ApiErrorDto(List<String> errors, String message, String reason, Status status, LocalDateTime timestamp) {
         this.errors = errors;
         this.message = message;
         this.reason = reason;

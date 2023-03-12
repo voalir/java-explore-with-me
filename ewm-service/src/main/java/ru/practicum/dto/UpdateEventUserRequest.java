@@ -20,7 +20,7 @@ public final class UpdateEventUserRequest {
     private final String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd' 'HH:mm:ss")
     private final LocalDateTime eventDate;
-    private final Location location;
+    private final LocationDto location;
     private final Boolean paid;
     private final Integer participantLimit;
     private final Boolean requestModeration;
@@ -30,13 +30,13 @@ public final class UpdateEventUserRequest {
 
     @JsonCreator
     public UpdateEventUserRequest(String annotation, Long category, String description, LocalDateTime eventDate,
-                                  Location location, Boolean paid, Integer participantLimit, Boolean requestModeration,
+                                  LocationDto locationDto, Boolean paid, Integer participantLimit, Boolean requestModeration,
                                   StateActionEnum stateAction, String title) {
         this.annotation = annotation;
         this.category = category;
         this.description = description;
         this.eventDate = eventDate;
-        this.location = location;
+        this.location = locationDto;
         this.paid = paid;
         this.participantLimit = participantLimit;
         this.requestModeration = requestModeration;
@@ -60,7 +60,7 @@ public final class UpdateEventUserRequest {
         return eventDate;
     }
 
-    public Location getLocation() {
+    public LocationDto getLocation() {
         return location;
     }
 

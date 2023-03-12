@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.practicum.dto.ApiError;
+import ru.practicum.dto.ApiErrorDto;
 import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
 
@@ -21,12 +21,12 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ApiError handleEntityNotFoundException(final NotFoundException e) {
-        return new ApiError(
+    public ApiErrorDto handleEntityNotFoundException(final NotFoundException e) {
+        return new ApiErrorDto(
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "not found",
-                ApiError.Status.STATUS_404_NOT_FOUND,
+                ApiErrorDto.Status.STATUS_404_NOT_FOUND,
                 LocalDateTime.now());
     }
 
@@ -40,23 +40,23 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
-        return new ApiError(
+    public ApiErrorDto handleDataIntegrityViolationException(final DataIntegrityViolationException e) {
+        return new ApiErrorDto(
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "value violation",
-                ApiError.Status.STATUS_409_CONFLICT,
+                ApiErrorDto.Status.STATUS_409_CONFLICT,
                 LocalDateTime.now());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleAccessFailedException(final AccessFailedException e) {
-        return new ApiError(
+    public ApiErrorDto handleAccessFailedException(final AccessFailedException e) {
+        return new ApiErrorDto(
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "no access",
-                ApiError.Status.STATUS_409_CONFLICT,
+                ApiErrorDto.Status.STATUS_409_CONFLICT,
                 LocalDateTime.now());
     }
 }

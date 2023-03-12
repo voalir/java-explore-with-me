@@ -26,7 +26,7 @@ public final class EventFullDto {
     @NotNull
     private final UserShortDto initiator;
     @NotNull
-    private final Location location;
+    private final LocationDto location;
     @NotNull
     private final Boolean paid;
     private final Integer participantLimit;
@@ -40,7 +40,7 @@ public final class EventFullDto {
 
     @JsonCreator
     public EventFullDto(String annotation, CategoryDto category, Long confirmedRequests, LocalDateTime createdOn,
-                        String description, LocalDateTime eventDate, Long id, UserShortDto initiator, Location location,
+                        String description, LocalDateTime eventDate, Long id, UserShortDto initiator, LocationDto locationDto,
                         Boolean paid, Integer participantLimit, LocalDateTime publishedOn, Boolean requestModeration,
                         StateEnum state, String title, Long views) {
         this.annotation = annotation;
@@ -51,7 +51,7 @@ public final class EventFullDto {
         this.eventDate = eventDate;
         this.id = id;
         this.initiator = initiator;
-        this.location = location;
+        this.location = locationDto;
         this.paid = paid;
         this.participantLimit = participantLimit;
         this.publishedOn = publishedOn;
@@ -93,7 +93,7 @@ public final class EventFullDto {
         return initiator;
     }
 
-    public Location getLocation() {
+    public LocationDto getLocation() {
         return location;
     }
 
