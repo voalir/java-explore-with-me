@@ -53,16 +53,6 @@ public class CompilationServiceImpl implements CompilationService {
         return getCompilationDto(compilation);
     }
 
-    private CompilationDto getCompilationDto(Compilation compilation) {
-        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
-                .stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                compilation.getEvents().stream()
-                        .map(id -> EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
-                Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-        return CompilationMapper.toCompilationDto(compilation, confirmedRequests, views);
-    }
-
     @Override
     @Transactional
     public void deleteCompilation(Long compId) {
@@ -86,7 +76,6 @@ public class CompilationServiceImpl implements CompilationService {
         return getCompilationDto(compilation);
     }
 
-
     @Override
     public List<CompilationDto> getCompilations(Boolean pinned, Integer from, Integer size) {
         PageRequest pageRequest = PageRequest.of(from / size, size);
@@ -96,10 +85,8 @@ public class CompilationServiceImpl implements CompilationService {
                 .flatMap(Set::stream).collect(Collectors.toList());
         Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(events
                 .stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
-                .stream().collect(Collectors.toMap(
-                        s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
+        Map<Long, Long> views = getViews(compilations.stream().map(Compilation::getEvents)
+                .flatMap(Set::stream).collect(Collectors.toSet()));
         return compilations.stream().map(compilation ->
                 CompilationMapper.toCompilationDto(compilation, confirmedRequests, views)).collect(Collectors.toList());
     }
@@ -110,19 +97,32 @@ public class CompilationServiceImpl implements CompilationService {
         return getCompilationDto(compilation);
     }
 
-    public Compilation getCompilationByIdRaw(Long compId) {
+    private Compilation getCompilationByIdRaw(Long compId) {
         return compilationRepository.findById(compId).orElseThrow(
                 () -> new NotFoundException("compilation with id=" + compId + " not found"));
     }
 
-    public List<Event> getEventsByIdsRaw(List<Long> events) {
+    private List<Event> getEventsByIdsRaw(List<Long> events) {
         return eventRepository.findAllById(events);
     }
 
-    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
+    private Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
         return requestRepository.findByEvent_IdInAndStatusIs(
                         events, ParticipationRequestStatus.CONFIRMED)
                 .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
+    }
+
+    private CompilationDto getCompilationDto(Compilation compilation) {
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(compilation.getEvents()
+                .stream().map(Event::getId).collect(Collectors.toList()));
+        Map<Long, Long> views = getViews(compilation.getEvents());
+        return CompilationMapper.toCompilationDto(compilation, confirmedRequests, views);
+    }
+
+    private Map<Long, Long> getViews(Set<Event> events) {
+        return statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(), events.stream()
+                .map(id -> EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
+                Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
     }
 
 }

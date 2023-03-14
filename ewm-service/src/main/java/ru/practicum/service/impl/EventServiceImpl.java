@@ -51,10 +51,7 @@ public class EventServiceImpl implements EventService {
                 rangeStart, rangeEnd, from, size);
         Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
-                .stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
+        Map<Long, Long> views = getViews(events);
         return events.stream().map(event -> EventMapper.toEventFullDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
@@ -77,24 +74,6 @@ public class EventServiceImpl implements EventService {
         return convertEventsToShortDto(events);
     }
 
-    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
-        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
-        }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
-                event.getState() != EventState.PENDING) {
-            throw new AccessFailedException("Event with id=" + eventId + " can't published");
-        }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
-                event.getState() == EventState.PUBLISHED) {
-            throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
-        }
-        if (updateEventAdminRequest.getEventDate() != null &&
-                updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
-        }
-    }
-
     @Override
     public EventFullDto getEventById(Long userId, Long eventId, HttpServletRequest request) {
         User user = getUserByIdRaw(userId);
@@ -105,14 +84,6 @@ public class EventServiceImpl implements EventService {
         sendStat(request);
         return convertEventToFullDto(event);
     }
-
-    private static void validToAdd(NewEventDto newEventDto) {
-        if (newEventDto.getEventDate() != null &&
-                newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new AccessFailedException("Event can't create by time start");
-        }
-    }
-
 
     @Override
     public List<EventShortDto> getEventsByPublicFilter(String text, List<Long> categories, Boolean paid,
@@ -125,28 +96,6 @@ public class EventServiceImpl implements EventService {
         return getEventShortDtos(onlyAvailable, sort, events);
     }
 
-    private List<EventShortDto> getEventShortDtos(Boolean onlyAvailable, String sort, List<Event> events) {
-        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
-                events.stream().map(Event::getId).collect(Collectors.toList()));
-        if (onlyAvailable != null && onlyAvailable) {
-            events = events.stream()
-                    .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
-                    .collect(Collectors.toList());
-        }
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
-                .stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-        if (sort != null && sort.equals("VIEWS")) {
-            events = events.stream().sorted(Comparator.comparing(
-                    event -> views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
-        }
-
-        return events.stream().map(event -> EventMapper.toEventShortDto(event,
-                confirmedRequests.getOrDefault(event.getId(), 0L),
-                views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
-    }
-
     @Override
     public EventFullDto getEventPublishedById(Long eventId, HttpServletRequest request) {
         Event event = getEventByIdRaw(eventId);
@@ -155,6 +104,29 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("event with id=" + eventId + " not published");
         }
         return convertEventToFullDto(event);
+    }
+
+    @Override
+    @Transactional
+    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
+        validToAdd(newEventDto);
+        User user = getUserByIdRaw(userId);
+        Category category = getCategoryByIdRaw(newEventDto.getCategory());
+        return EventMapper.toEventFullDto(
+                eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
+    }
+
+    @Override
+    @Transactional
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
+        Event event = getEventByIdRaw(eventId);
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new AccessFailedException("Event with id=" + eventId + " is too old");
+        }
+        validToUpdateByUser(event, updateEventUserRequest);
+        updateEventByRequest(event, updateEventUserRequest);
+        Event eventUpdated = eventRepository.save(event);
+        return convertEventToFullDto(eventUpdated);
     }
 
     public Event getEventByIdRaw(Long eventId) {
@@ -172,11 +144,7 @@ public class EventServiceImpl implements EventService {
     private List<EventShortDto> convertEventsToShortDto(List<Event> events) {
         Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
                 events.stream().map(Event::getId).collect(Collectors.toList()));
-        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
-                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
-                .stream().collect(Collectors.toMap(s ->
-                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
-
+        Map<Long, Long> views = getViews(events);
         return events.stream().map(event -> EventMapper.toEventShortDto(event,
                 confirmedRequests.getOrDefault(event.getId(), 0L),
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
@@ -263,29 +231,6 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    @Override
-    @Transactional
-    public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
-        validToAdd(newEventDto);
-        User user = getUserByIdRaw(userId);
-        Category category = getCategoryByIdRaw(newEventDto.getCategory());
-        return EventMapper.toEventFullDto(
-                eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
-    }
-
-    @Override
-    @Transactional
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
-        Event event = getEventByIdRaw(eventId);
-        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new AccessFailedException("Event with id=" + eventId + " is too old");
-        }
-        validToUpdateByUser(event, updateEventUserRequest);
-        updateEventByRequest(event, updateEventUserRequest);
-        Event eventUpdated = eventRepository.save(event);
-        return convertEventToFullDto(eventUpdated);
-    }
-
     private void sendStat(HttpServletRequest request) {
         EndpointHitDto endpointHitDto = new EndpointHitDto(
                 null,
@@ -297,7 +242,7 @@ public class EventServiceImpl implements EventService {
         statClient.registerHit(endpointHitDto);
     }
 
-    public Category getCategoryByIdRaw(Long category) {
+    private Category getCategoryByIdRaw(Long category) {
         return categoryRepository.findById(category).orElseThrow(
                 () -> new NotFoundException("category with id=" + category + " not found"));
     }
@@ -316,5 +261,58 @@ public class EventServiceImpl implements EventService {
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
         return requestRepository.countByEvent_IdIsAndStatusIs(
                 eventId, ParticipationRequestStatus.CONFIRMED);
+    }
+
+    private Map<Long, Long> getViews(List<Event> events) {
+        return statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(), events.stream()
+                .map(id -> EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
+                Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
+    }
+
+    private List<EventShortDto> getEventShortDtos(Boolean onlyAvailable, String sort, List<Event> events) {
+        Map<Long, Long> confirmedRequests = getCountConfirmedRequestsByEventIds(
+                events.stream().map(Event::getId).collect(Collectors.toList()));
+        if (onlyAvailable != null && onlyAvailable) {
+            events = events.stream()
+                    .filter(event -> confirmedRequests.getOrDefault(event.getId(), 0L) < (long) event.getParticipantLimit())
+                    .collect(Collectors.toList());
+        }
+        Map<Long, Long> views = statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(),
+                        events.stream().map(e -> EVENTS_POINT + e.getId()).toArray(String[]::new), false)
+                .stream().collect(Collectors.toMap(s ->
+                        Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
+        if (sort != null && sort.equals("VIEWS")) {
+            events = events.stream().sorted(Comparator.comparing(
+                    event -> views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
+        }
+
+        return events.stream().map(event -> EventMapper.toEventShortDto(event,
+                confirmedRequests.getOrDefault(event.getId(), 0L),
+                views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
+    }
+
+    private static void validToAdd(NewEventDto newEventDto) {
+        if (newEventDto.getEventDate() != null &&
+                newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event can't create by time start");
+        }
+    }
+
+    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
+        if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
+                event.getState() != EventState.PENDING) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't published");
+        }
+        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
+                event.getState() == EventState.PUBLISHED) {
+            throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
+        }
+        if (updateEventAdminRequest.getEventDate() != null &&
+                updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
     }
 }
