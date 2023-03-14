@@ -40,12 +40,15 @@ public class EventPublicController {
 
     @GetMapping("/{id}")
     EventFullDto getEventById(@PathVariable Long id, HttpServletRequest request) {
-        /*Обратите внимание:
-
-    событие должно быть опубликовано
-    информация о событии должна включать в себя количество просмотров и количество подтвержденных запросов
-    информацию о том, что по этому эндпоинту был осуществлен и обработан запрос, нужно сохранить в сервисе статистики
-*/
         return eventService.getEventPublishedById(id, request);
+    }
+
+    @GetMapping("/test")
+    List<EventShortDto> getEventsByLocation(@RequestParam Long locationId,
+                                            @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                            @RequestParam(defaultValue = "10") @Positive Integer size,
+                                            HttpServletRequest request) {
+
+        return eventService.getEventByLocation(locationId, from, size, request);
     }
 }
