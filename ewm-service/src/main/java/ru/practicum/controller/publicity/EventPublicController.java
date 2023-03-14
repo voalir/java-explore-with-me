@@ -49,6 +49,6 @@ public class EventPublicController {
                                             @RequestParam(defaultValue = "10") @Positive Integer size,
                                             HttpServletRequest request) {
 
-        return eventService.getEventByLocation(locationId, from, size, request);
+        return eventService.getEventsByLocation(locationId, from, size, request);
     }
 }
