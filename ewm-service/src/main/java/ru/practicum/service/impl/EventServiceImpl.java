@@ -107,6 +107,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventShortDto> getEventsByLocation(Long locationId, Integer from, Integer size, HttpServletRequest request) {
+        throw new RuntimeException("not implemented");
+    }
+
+    @Override
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         validToAdd(newEventDto);
