@@ -129,7 +129,7 @@ public class EventServiceImpl implements EventService {
         return convertEventToFullDto(eventUpdated);
     }
 
-    public Event getEventByIdRaw(Long eventId) {
+    private Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
     }
@@ -252,13 +252,13 @@ public class EventServiceImpl implements EventService {
                 () -> new NotFoundException("user with id=" + userId + " not found"));
     }
 
-    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
+    private Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
         return requestRepository.findByEvent_IdInAndStatusIs(
                         events, ParticipationRequestStatus.CONFIRMED)
                 .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
     }
 
-    public Integer getCountConfirmedRequestsByEventId(Long eventId) {
+    private Integer getCountConfirmedRequestsByEventId(Long eventId) {
         return requestRepository.countByEventIdIsAndStatusIs(
                 eventId, ParticipationRequestStatus.CONFIRMED);
     }

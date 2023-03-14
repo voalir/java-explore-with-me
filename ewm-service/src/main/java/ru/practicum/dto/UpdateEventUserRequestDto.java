@@ -2,7 +2,6 @@ package ru.practicum.dto;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonValue;
 
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -88,30 +87,7 @@ public final class UpdateEventUserRequestDto {
      * Изменение состояния события
      */
     public enum StateActionEnum {
-        SEND_TO_REVIEW("SEND_TO_REVIEW"),
-
-        CANCEL_REVIEW("CANCEL_REVIEW");
-
-        private final String value;
-
-        StateActionEnum(String value) {
-            this.value = value;
-        }
-
-        @JsonCreator
-        public static StateActionEnum fromValue(String text) {
-            for (StateActionEnum b : StateActionEnum.values()) {
-                if (String.valueOf(b.value).equals(text)) {
-                    return b;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        @JsonValue
-        public String toString() {
-            return String.valueOf(value);
-        }
+        SEND_TO_REVIEW,
+        CANCEL_REVIEW
     }
 }
