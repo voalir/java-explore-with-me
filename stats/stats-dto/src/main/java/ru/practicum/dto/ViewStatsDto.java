@@ -1,5 +1,8 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 /**
@@ -11,7 +14,8 @@ public final class ViewStatsDto {
     private final String uri;
     private final Long hits;
 
-    public ViewStatsDto(String app, String uri, Long hits) {
+    @JsonCreator
+    public ViewStatsDto(@JsonProperty("app") String app, @JsonProperty("uri") String uri, @JsonProperty("hits") Long hits) {
         this.app = app;
         this.uri = uri;
         this.hits = hits;
