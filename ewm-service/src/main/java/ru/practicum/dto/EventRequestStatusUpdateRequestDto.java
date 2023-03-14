@@ -8,13 +8,13 @@ import java.util.List;
 /**
  * Изменение статуса запроса на участие в событии текущего пользователя
  */
-public final class EventRequestStatusUpdateRequest {
+public final class EventRequestStatusUpdateRequestDto {
 
     private final List<Long> requestIds;
     private final StatusEnum status;
 
     @JsonCreator
-    public EventRequestStatusUpdateRequest(List<Long> requestIds, StatusEnum status) {
+    public EventRequestStatusUpdateRequestDto(List<Long> requestIds, StatusEnum status) {
         this.requestIds = requestIds;
         this.status = status;
     }

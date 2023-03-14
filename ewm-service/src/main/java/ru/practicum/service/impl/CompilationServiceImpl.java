@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatClient;
 import ru.practicum.dto.CompilationDto;
 import ru.practicum.dto.NewCompilationDto;
-import ru.practicum.dto.UpdateCompilationRequest;
+import ru.practicum.dto.UpdateCompilationRequestDto;
 import ru.practicum.dto.ViewStatsDto;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.CompilationMapper;
@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
-    public static final String EVENTS_POINT = "/events/";
     private final CompilationRepository compilationRepository;
     private final StatClient statClient;
     private final EventRepository eventRepository;
@@ -61,16 +60,16 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     @Transactional
-    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
+    public CompilationDto updateCompilation(Long compId, UpdateCompilationRequestDto updateCompilationRequestDto) {
         Compilation compilationToUpdate = getCompilationByIdRaw(compId);
-        if (updateCompilationRequest.getPinned() != null) {
-            compilationToUpdate.setPinned(updateCompilationRequest.getPinned());
+        if (updateCompilationRequestDto.getPinned() != null) {
+            compilationToUpdate.setPinned(updateCompilationRequestDto.getPinned());
         }
-        if (updateCompilationRequest.getEvents() != null) {
-            compilationToUpdate.setEvents(new HashSet<>(getEventsByIdsRaw(updateCompilationRequest.getEvents())));
+        if (updateCompilationRequestDto.getEvents() != null) {
+            compilationToUpdate.setEvents(new HashSet<>(getEventsByIdsRaw(updateCompilationRequestDto.getEvents())));
         }
-        if (updateCompilationRequest.getTitle() != null) {
-            compilationToUpdate.setTitle(updateCompilationRequest.getTitle());
+        if (updateCompilationRequestDto.getTitle() != null) {
+            compilationToUpdate.setTitle(updateCompilationRequestDto.getTitle());
         }
         Compilation compilation = compilationRepository.save(compilationToUpdate);
         return getCompilationDto(compilation);
@@ -121,7 +120,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     private Map<Long, Long> getViews(Set<Event> events) {
         return statClient.getStats(LocalDateTime.now().minusYears(10), LocalDateTime.now(), events.stream()
-                .map(id -> EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
+                .map(id -> EventServiceImpl.EVENTS_POINT + id).toArray(String[]::new), false).stream().collect(
                 Collectors.toMap(s -> Long.valueOf(s.getUri().substring(8)), ViewStatsDto::getHits));
     }
 

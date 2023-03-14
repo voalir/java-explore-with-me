@@ -31,7 +31,7 @@ public final class EventMapper {
                 newEventDto.getRequestModeration(), EventState.PENDING, newEventDto.getTitle());
     }
 
-    public static EventState toEventState(UpdateEventAdminRequest.StateActionEnum stateActionEnum) {
+    public static EventState toEventState(UpdateEventAdminRequestDto.StateActionEnum stateActionEnum) {
         switch (stateActionEnum) {
             case PUBLISH_EVENT:
                 return EventState.PUBLISHED;
@@ -42,7 +42,7 @@ public final class EventMapper {
         }
     }
 
-    public static EventState toEventState(UpdateEventUserRequest.StateActionEnum stateActionEnum) {
+    public static EventState toEventState(UpdateEventUserRequestDto.StateActionEnum stateActionEnum) {
         switch (stateActionEnum) {
             case CANCEL_REVIEW:
                 return EventState.CANCELED;

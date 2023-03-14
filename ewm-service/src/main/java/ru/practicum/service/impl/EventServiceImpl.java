@@ -59,10 +59,10 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest) {
+    public EventFullDto updateEvent(Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto) {
         Event event = getEventByIdRaw(eventId);
-        validToUpdate(eventId, updateEventAdminRequest, event);
-        updateEventByRequest(event, updateEventAdminRequest);
+        validToUpdate(eventId, updateEventAdminRequestDto, event);
+        updateEventByRequest(event, updateEventAdminRequestDto);
         Event eventUpdated = eventRepository.save(event);
         return convertEventToFullDto(eventUpdated);
     }
@@ -118,13 +118,13 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
+    public EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventUserRequestDto) {
         Event event = getEventByIdRaw(eventId);
         if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new AccessFailedException("Event with id=" + eventId + " is too old");
         }
-        validToUpdateByUser(event, updateEventUserRequest);
-        updateEventByRequest(event, updateEventUserRequest);
+        validToUpdateByUser(event, updateEventUserRequestDto);
+        updateEventByRequest(event, updateEventUserRequestDto);
         Event eventUpdated = eventRepository.save(event);
         return convertEventToFullDto(eventUpdated);
     }
@@ -150,83 +150,83 @@ public class EventServiceImpl implements EventService {
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
     }
 
-    private void updateEventByRequest(Event event, UpdateEventAdminRequest updateEventAdminRequest) {
-        if (updateEventAdminRequest.getRequestModeration() != null) {
-            event.setRequestModeration(updateEventAdminRequest.getRequestModeration());
+    private void updateEventByRequest(Event event, UpdateEventAdminRequestDto updateEventAdminRequestDto) {
+        if (updateEventAdminRequestDto.getRequestModeration() != null) {
+            event.setRequestModeration(updateEventAdminRequestDto.getRequestModeration());
         }
-        if (updateEventAdminRequest.getPaid() != null) {
-            event.setPaid(updateEventAdminRequest.getPaid());
+        if (updateEventAdminRequestDto.getPaid() != null) {
+            event.setPaid(updateEventAdminRequestDto.getPaid());
         }
-        if (updateEventAdminRequest.getEventDate() != null) {
-            event.setEventDate(updateEventAdminRequest.getEventDate());
+        if (updateEventAdminRequestDto.getEventDate() != null) {
+            event.setEventDate(updateEventAdminRequestDto.getEventDate());
         }
-        if (updateEventAdminRequest.getAnnotation() != null) {
-            event.setAnnotation(updateEventAdminRequest.getAnnotation());
+        if (updateEventAdminRequestDto.getAnnotation() != null) {
+            event.setAnnotation(updateEventAdminRequestDto.getAnnotation());
         }
-        if (updateEventAdminRequest.getCategory() != null) {
-            event.setCategory(getCategoryByIdRaw(updateEventAdminRequest.getCategory()));
+        if (updateEventAdminRequestDto.getCategory() != null) {
+            event.setCategory(getCategoryByIdRaw(updateEventAdminRequestDto.getCategory()));
         }
-        if (updateEventAdminRequest.getDescription() != null) {
-            event.setDescription(updateEventAdminRequest.getDescription());
+        if (updateEventAdminRequestDto.getDescription() != null) {
+            event.setDescription(updateEventAdminRequestDto.getDescription());
         }
-        if (updateEventAdminRequest.getLocation() != null) {
-            event.setLat(updateEventAdminRequest.getLocation().getLat());
-            event.setLon(updateEventAdminRequest.getLocation().getLon());
+        if (updateEventAdminRequestDto.getLocation() != null) {
+            event.setLat(updateEventAdminRequestDto.getLocation().getLat());
+            event.setLon(updateEventAdminRequestDto.getLocation().getLon());
         }
-        if (updateEventAdminRequest.getParticipantLimit() != null) {
-            event.setParticipantLimit(updateEventAdminRequest.getParticipantLimit());
+        if (updateEventAdminRequestDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateEventAdminRequestDto.getParticipantLimit());
         }
-        if (updateEventAdminRequest.getStateAction() != null) {
-            event.setState(EventMapper.toEventState(updateEventAdminRequest.getStateAction()));
+        if (updateEventAdminRequestDto.getStateAction() != null) {
+            event.setState(EventMapper.toEventState(updateEventAdminRequestDto.getStateAction()));
         }
-        if (updateEventAdminRequest.getTitle() != null) {
-            event.setTitle(updateEventAdminRequest.getTitle());
-        }
-    }
-
-    private void updateEventByRequest(Event event, UpdateEventUserRequest updateEventUserRequest) {
-        if (updateEventUserRequest.getRequestModeration() != null) {
-            event.setRequestModeration(updateEventUserRequest.getRequestModeration());
-        }
-        if (updateEventUserRequest.getPaid() != null) {
-            event.setPaid(updateEventUserRequest.getPaid());
-        }
-        if (updateEventUserRequest.getEventDate() != null) {
-            event.setEventDate(updateEventUserRequest.getEventDate());
-        }
-        if (updateEventUserRequest.getAnnotation() != null) {
-            event.setAnnotation(updateEventUserRequest.getAnnotation());
-        }
-        if (updateEventUserRequest.getCategory() != null) {
-            event.setCategory(getCategoryByIdRaw(updateEventUserRequest.getCategory()));
-        }
-        if (updateEventUserRequest.getDescription() != null) {
-            event.setDescription(updateEventUserRequest.getDescription());
-        }
-        if (updateEventUserRequest.getLocation() != null) {
-            event.setLat(updateEventUserRequest.getLocation().getLat());
-            event.setLon(updateEventUserRequest.getLocation().getLon());
-        }
-        if (updateEventUserRequest.getParticipantLimit() != null) {
-            event.setParticipantLimit(updateEventUserRequest.getParticipantLimit());
-        }
-        if (updateEventUserRequest.getStateAction() != null) {
-            event.setState(EventMapper.toEventState(updateEventUserRequest.getStateAction()));
-        }
-        if (updateEventUserRequest.getTitle() != null) {
-            event.setTitle(updateEventUserRequest.getTitle());
+        if (updateEventAdminRequestDto.getTitle() != null) {
+            event.setTitle(updateEventAdminRequestDto.getTitle());
         }
     }
 
-    private static void validToUpdateByUser(Event event, UpdateEventUserRequest updateEventUserRequest) {
+    private void updateEventByRequest(Event event, UpdateEventUserRequestDto updateEventUserRequestDto) {
+        if (updateEventUserRequestDto.getRequestModeration() != null) {
+            event.setRequestModeration(updateEventUserRequestDto.getRequestModeration());
+        }
+        if (updateEventUserRequestDto.getPaid() != null) {
+            event.setPaid(updateEventUserRequestDto.getPaid());
+        }
+        if (updateEventUserRequestDto.getEventDate() != null) {
+            event.setEventDate(updateEventUserRequestDto.getEventDate());
+        }
+        if (updateEventUserRequestDto.getAnnotation() != null) {
+            event.setAnnotation(updateEventUserRequestDto.getAnnotation());
+        }
+        if (updateEventUserRequestDto.getCategory() != null) {
+            event.setCategory(getCategoryByIdRaw(updateEventUserRequestDto.getCategory()));
+        }
+        if (updateEventUserRequestDto.getDescription() != null) {
+            event.setDescription(updateEventUserRequestDto.getDescription());
+        }
+        if (updateEventUserRequestDto.getLocation() != null) {
+            event.setLat(updateEventUserRequestDto.getLocation().getLat());
+            event.setLon(updateEventUserRequestDto.getLocation().getLon());
+        }
+        if (updateEventUserRequestDto.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateEventUserRequestDto.getParticipantLimit());
+        }
+        if (updateEventUserRequestDto.getStateAction() != null) {
+            event.setState(EventMapper.toEventState(updateEventUserRequestDto.getStateAction()));
+        }
+        if (updateEventUserRequestDto.getTitle() != null) {
+            event.setTitle(updateEventUserRequestDto.getTitle());
+        }
+    }
+
+    private static void validToUpdateByUser(Event event, UpdateEventUserRequestDto updateEventUserRequestDto) {
         if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new AccessFailedException("Event with id=" + event.getId() + " can't update by time start");
         }
         if (event.getState() == EventState.PUBLISHED) {
             throw new AccessFailedException("published event with id=" + event.getId() + "can't be updated");
         }
-        if (updateEventUserRequest.getEventDate() != null &&
-                updateEventUserRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+        if (updateEventUserRequestDto.getEventDate() != null &&
+                updateEventUserRequestDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             throw new AccessFailedException("Event with id=" + event.getId() + " can't update by time start");
         }
     }
@@ -259,7 +259,7 @@ public class EventServiceImpl implements EventService {
     }
 
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.countByEvent_IdIsAndStatusIs(
+        return requestRepository.countByEventIdIsAndStatusIs(
                 eventId, ParticipationRequestStatus.CONFIRMED);
     }
 
@@ -298,20 +298,20 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private static void validToUpdate(Long eventId, UpdateEventAdminRequest updateEventAdminRequest, Event event) {
+    private static void validToUpdate(Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto, Event event) {
         if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
         }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.PUBLISH_EVENT &&
+        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateActionEnum.PUBLISH_EVENT &&
                 event.getState() != EventState.PENDING) {
             throw new AccessFailedException("Event with id=" + eventId + " can't published");
         }
-        if (updateEventAdminRequest.getStateAction() == UpdateEventAdminRequest.StateActionEnum.REJECT_EVENT &&
+        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateActionEnum.REJECT_EVENT &&
                 event.getState() == EventState.PUBLISHED) {
             throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
         }
-        if (updateEventAdminRequest.getEventDate() != null &&
-                updateEventAdminRequest.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+        if (updateEventAdminRequestDto.getEventDate() != null &&
+                updateEventAdminRequestDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
         }
     }

@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @Validated
 public class CategoryAdminController {
 
-    private final Logger logger = LoggerFactory.getLogger(CategoryAdminController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CategoryAdminController.class);
 
     private final CategoryService categoryService;
 

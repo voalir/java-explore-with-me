@@ -3,8 +3,8 @@ package ru.practicum.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.EventRequestStatusUpdateResult;
+import ru.practicum.dto.EventRequestStatusUpdateRequestDto;
+import ru.practicum.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
@@ -73,13 +73,13 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult updateRequestStatus(
-            Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
+    public EventRequestStatusUpdateResultDto updateRequestStatus(
+            Long userId, Long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToUpdateRequest(user, event);
-        List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
-        switch (eventRequestStatusUpdateRequest.getStatus()) {
+        List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequestDto.getRequestIds());
+        switch (eventRequestStatusUpdateRequestDto.getStatus()) {
             case REJECTED:
                 rejectRequest(requests);
                 break;
@@ -90,8 +90,9 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toEventRequestStatusUpdateResult(requests);
     }
 
+    @Override
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.countByEvent_IdIsAndStatusIs(
+        return requestRepository.countByEventIdIsAndStatusIs(
                 eventId, ParticipationRequestStatus.CONFIRMED);
     }
 
@@ -162,7 +163,7 @@ public class RequestServiceImpl implements RequestService {
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
     }
 
-    public User getUserByIdRaw(Long userId) {
+    private User getUserByIdRaw(Long userId) {
         return userRepository.findById(userId).orElseThrow(
                 () -> new NotFoundException("user with id=" + userId + " not found"));
     }

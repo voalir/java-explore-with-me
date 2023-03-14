@@ -5,13 +5,13 @@ import java.util.List;
 /**
  * Результат подтверждения/отклонения заявок на участие в событии
  */
-public final class EventRequestStatusUpdateResult {
+public final class EventRequestStatusUpdateResultDto {
 
     private final List<ParticipationRequestDto> confirmedRequests;
 
     private final List<ParticipationRequestDto> rejectedRequests;
 
-    public EventRequestStatusUpdateResult(List<ParticipationRequestDto> confirmedRequests, List<ParticipationRequestDto> rejectedRequests) {
+    public EventRequestStatusUpdateResultDto(List<ParticipationRequestDto> confirmedRequests, List<ParticipationRequestDto> rejectedRequests) {
         this.confirmedRequests = confirmedRequests;
         this.rejectedRequests = rejectedRequests;
     }

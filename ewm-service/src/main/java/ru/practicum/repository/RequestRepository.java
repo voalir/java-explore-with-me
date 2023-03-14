@@ -21,7 +21,7 @@ public interface RequestRepository extends JpaRepository<ParticipationRequest, L
             "where event = ?1 and requester = ?2")
     Boolean hasRequestToEventByUser(Event event, User user);
 
-    Integer countByEvent_IdIsAndStatusIs(Long eventId, ParticipationRequestStatus status);
+    Integer countByEventIdIsAndStatusIs(Long eventId, ParticipationRequestStatus status);
 
     List<ParticipationRequest> findByEvent_IdInAndStatusIs(List<Long> eventIds, ParticipationRequestStatus status);
 

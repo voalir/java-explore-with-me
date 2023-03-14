@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.NewUserRequest;
+import ru.practicum.dto.NewUserRequestDto;
 import ru.practicum.dto.UserDto;
 import ru.practicum.mapper.UserMapper;
 import ru.practicum.repository.UserRepository;
@@ -32,8 +32,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserDto addUser(NewUserRequest newUserRequest) {
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequest)));
+    public UserDto addUser(NewUserRequestDto newUserRequestDto) {
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequestDto)));
     }
 
     @Override

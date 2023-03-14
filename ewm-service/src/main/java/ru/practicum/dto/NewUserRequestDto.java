@@ -6,7 +6,7 @@ import javax.validation.constraints.NotNull;
 /**
  * Данные нового пользователя
  */
-public final class NewUserRequest {
+public final class NewUserRequestDto {
 
     @Email
     @NotNull
@@ -14,7 +14,7 @@ public final class NewUserRequest {
     @NotNull
     private final String name;
 
-    public NewUserRequest(String email, String name) {
+    public NewUserRequestDto(String email, String name) {
         this.email = email;
         this.name = name;
     }

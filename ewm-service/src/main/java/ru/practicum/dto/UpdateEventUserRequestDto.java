@@ -9,9 +9,9 @@ import java.time.LocalDateTime;
 
 /**
  * Данные для изменения информации о событии. Если поле в запросе не указано (равно null) - значит изменение
- * этих данных не треубется.
+ * этих данных не требуется.
  */
-public final class UpdateEventAdminRequest {
+public final class UpdateEventUserRequestDto {
 
     @Size(min = 20, max = 2000)
     private final String annotation;
@@ -29,9 +29,9 @@ public final class UpdateEventAdminRequest {
     private final String title;
 
     @JsonCreator
-    public UpdateEventAdminRequest(String annotation, Long category, String description, LocalDateTime eventDate,
-                                   LocationDto locationDto, Boolean paid, Integer participantLimit, Boolean requestModeration,
-                                   StateActionEnum stateAction, String title) {
+    public UpdateEventUserRequestDto(String annotation, Long category, String description, LocalDateTime eventDate,
+                                     LocationDto locationDto, Boolean paid, Integer participantLimit, Boolean requestModeration,
+                                     StateActionEnum stateAction, String title) {
         this.annotation = annotation;
         this.category = category;
         this.description = description;
@@ -85,12 +85,12 @@ public final class UpdateEventAdminRequest {
     }
 
     /**
-     * Новое состояние события
+     * Изменение состояния события
      */
     public enum StateActionEnum {
-        PUBLISH_EVENT("PUBLISH_EVENT"),
+        SEND_TO_REVIEW("SEND_TO_REVIEW"),
 
-        REJECT_EVENT("REJECT_EVENT");
+        CANCEL_REVIEW("CANCEL_REVIEW");
 
         private final String value;
 
