@@ -23,14 +23,14 @@ public final class UpdateEventAdminRequestDto {
     private final Boolean paid;
     private final Integer participantLimit;
     private final Boolean requestModeration;
-    private final StateActionEnum stateAction;
+    private final StateAction stateAction;
     @Size(min = 3, max = 120)
     private final String title;
 
     @JsonCreator
     public UpdateEventAdminRequestDto(String annotation, Long category, String description, LocalDateTime eventDate,
                                       LocationDto locationDto, Boolean paid, Integer participantLimit, Boolean requestModeration,
-                                      StateActionEnum stateAction, String title) {
+                                      StateAction stateAction, String title) {
         this.annotation = annotation;
         this.category = category;
         this.description = description;
@@ -75,7 +75,7 @@ public final class UpdateEventAdminRequestDto {
         return requestModeration;
     }
 
-    public StateActionEnum getStateAction() {
+    public StateAction getStateAction() {
         return stateAction;
     }
 
@@ -86,7 +86,7 @@ public final class UpdateEventAdminRequestDto {
     /**
      * Новое состояние события
      */
-    public enum StateActionEnum {
+    public enum StateAction {
         PUBLISH_EVENT,
         REJECT_EVENT
     }

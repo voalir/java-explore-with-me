@@ -10,10 +10,10 @@ import java.util.List;
 public final class EventRequestStatusUpdateRequestDto {
 
     private final List<Long> requestIds;
-    private final StatusEnum status;
+    private final Status status;
 
     @JsonCreator
-    public EventRequestStatusUpdateRequestDto(List<Long> requestIds, StatusEnum status) {
+    public EventRequestStatusUpdateRequestDto(List<Long> requestIds, Status status) {
         this.requestIds = requestIds;
         this.status = status;
     }
@@ -22,14 +22,14 @@ public final class EventRequestStatusUpdateRequestDto {
         return requestIds;
     }
 
-    public StatusEnum getStatus() {
+    public Status getStatus() {
         return status;
     }
 
     /**
      * Новый статус запроса на участие в событии текущего пользователя
      */
-    public enum StatusEnum {
+    public enum Status {
         CONFIRMED,
         REJECTED
     }

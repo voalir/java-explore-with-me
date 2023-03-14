@@ -302,11 +302,11 @@ public class EventServiceImpl implements EventService {
         if (event.getEventDate() != null && event.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
         }
-        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateActionEnum.PUBLISH_EVENT &&
+        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateAction.PUBLISH_EVENT &&
                 event.getState() != EventState.PENDING) {
             throw new AccessFailedException("Event with id=" + eventId + " can't published");
         }
-        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateActionEnum.REJECT_EVENT &&
+        if (updateEventAdminRequestDto.getStateAction() == UpdateEventAdminRequestDto.StateAction.REJECT_EVENT &&
                 event.getState() == EventState.PUBLISHED) {
             throw new AccessFailedException("Event with id=" + eventId + "can't be rejected");
         }

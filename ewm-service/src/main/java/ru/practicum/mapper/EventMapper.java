@@ -31,8 +31,8 @@ public final class EventMapper {
                 newEventDto.getRequestModeration(), EventState.PENDING, newEventDto.getTitle());
     }
 
-    public static EventState toEventState(UpdateEventAdminRequestDto.StateActionEnum stateActionEnum) {
-        switch (stateActionEnum) {
+    public static EventState toEventState(UpdateEventAdminRequestDto.StateAction stateAction) {
+        switch (stateAction) {
             case PUBLISH_EVENT:
                 return EventState.PUBLISHED;
             case REJECT_EVENT:
@@ -42,8 +42,8 @@ public final class EventMapper {
         }
     }
 
-    public static EventState toEventState(UpdateEventUserRequestDto.StateActionEnum stateActionEnum) {
-        switch (stateActionEnum) {
+    public static EventState toEventState(UpdateEventUserRequestDto.StateAction stateAction) {
+        switch (stateAction) {
             case CANCEL_REVIEW:
                 return EventState.CANCELED;
             case SEND_TO_REVIEW:
@@ -53,8 +53,8 @@ public final class EventMapper {
         }
     }
 
-    public static EventState toEventState(EventFullDto.State stateActionEnum) {
-        switch (stateActionEnum) {
+    public static EventState toEventState(EventFullDto.State stateAction) {
+        switch (stateAction) {
             case PUBLISHED:
                 return EventState.PUBLISHED;
             case CANCELED:
