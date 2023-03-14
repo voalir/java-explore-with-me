@@ -1,21 +1,17 @@
 package ru.practicum.dto;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
- * Подборка событий
+ * Изменение информации о подборке событий. Если поле в запросе не указано (равно null) - значит изменение этих данных не треубется.
  */
-public final class NewCompilationDto {
+public final class UpdateCompilationRequestDto {
 
     private final List<Long> events;
-
     private final Boolean pinned;
-
-    @NotNull
     private final String title;
 
-    public NewCompilationDto(List<Long> events, Boolean pinned, String title) {
+    public UpdateCompilationRequestDto(List<Long> events, Boolean pinned, String title) {
         this.events = events;
         this.pinned = pinned;
         this.title = title;

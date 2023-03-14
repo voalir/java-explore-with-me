@@ -3,11 +3,10 @@ package ru.practicum.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.NewUserRequest;
+import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.dto.NewUserRequestDto;
 import ru.practicum.dto.UserDto;
-import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.UserMapper;
-import ru.practicum.model.User;
 import ru.practicum.repository.UserRepository;
 import ru.practicum.service.UserService;
 
@@ -15,10 +14,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    UserRepository userRepository;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<UserDto> getUsers(List<Long> ids, Integer from, Integer size) {
@@ -27,18 +31,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto addUser(NewUserRequest newUserRequest) {
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequest)));
+    @Transactional
+    public UserDto addUser(NewUserRequestDto newUserRequestDto) {
+        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(newUserRequestDto)));
     }
 
     @Override
+    @Transactional
     public void deleteUser(Long userId) {
         userRepository.deleteById(userId);
     }
 
-    @Override
-    public User getUserByIdRaw(Long userId) {
-        return userRepository.findById(userId).orElseThrow(
-                () -> new NotFoundException("user with id=" + userId + " not found"));
-    }
 }

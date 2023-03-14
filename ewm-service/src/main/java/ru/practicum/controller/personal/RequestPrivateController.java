@@ -12,8 +12,13 @@ import java.util.List;
 @RequestMapping(path = "/users")
 public class RequestPrivateController {
 
+
+    private final RequestService requestService;
+
     @Autowired
-    RequestService requestService;
+    public RequestPrivateController(RequestService requestService) {
+        this.requestService = requestService;
+    }
 
     @GetMapping("/{userId}/requests")
     List<ParticipationRequestDto> getRequestsByUser(@PathVariable Long userId) {

@@ -13,8 +13,12 @@ import java.util.List;
 @RequestMapping(path = "/categories")
 public class CategoryPublicController {
 
+    private final CategoryService categoryService;
+
     @Autowired
-    CategoryService categoryService;
+    public CategoryPublicController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @GetMapping
     List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero Integer from,

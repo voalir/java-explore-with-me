@@ -17,8 +17,12 @@ import java.util.List;
 @RequestMapping(path = "/events")
 public class EventPublicController {
 
+    private final EventService eventService;
+
     @Autowired
-    EventService eventService;
+    public EventPublicController(EventService eventService) {
+        this.eventService = eventService;
+    }
 
     @GetMapping
     List<EventShortDto> getEvents(@RequestParam(required = false) String text,
@@ -31,7 +35,7 @@ public class EventPublicController {
                                   @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                   @RequestParam(defaultValue = "10") @Positive Integer size,
                                   HttpServletRequest request) {
-        return eventService.getEventsByFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
+        return eventService.getEventsByPublicFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size, request);
     }
 
     @GetMapping("/{id}")

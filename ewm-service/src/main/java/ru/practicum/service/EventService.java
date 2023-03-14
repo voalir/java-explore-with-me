@@ -2,7 +2,6 @@ package ru.practicum.service;
 
 
 import ru.practicum.dto.*;
-import ru.practicum.model.Event;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -10,9 +9,9 @@ import java.util.List;
 
 public interface EventService {
 
-    List<EventFullDto> getEvents(List<Long> users, List<EventFullDto.StateEnum> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
+    List<EventFullDto> getEventsByAdminFilter(List<Long> users, List<EventFullDto.State> states, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, Integer from, Integer size);
 
-    EventFullDto updateEvent(Long eventId, UpdateEventAdminRequest updateEventAdminRequest);
+    EventFullDto updateEvent(Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto);
 
     List<EventShortDto> getEventsForUser(Long userId, Integer from, Integer size);
 
@@ -20,16 +19,11 @@ public interface EventService {
 
     EventFullDto getEventById(Long userId, Long eventId, HttpServletRequest request);
 
-    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest);
+    EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventUserRequestDto);
 
-    List<EventShortDto> getEventsByFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                          LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest request);
+    List<EventShortDto> getEventsByPublicFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+                                                LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest request);
 
     EventFullDto getEventPublishedById(Long id, HttpServletRequest request);
 
-    Event getEventByIdRaw(Long eventId);
-
-    List<Event> getEventsByIdsRaw(List<Long> events);
-
-    List<EventShortDto> getEventByLocation(Long locationId, Integer from, Integer size, HttpServletRequest request);
 }

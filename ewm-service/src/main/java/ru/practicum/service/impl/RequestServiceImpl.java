@@ -3,8 +3,8 @@ package ru.practicum.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.dto.EventRequestStatusUpdateRequest;
-import ru.practicum.dto.EventRequestStatusUpdateResult;
+import ru.practicum.dto.EventRequestStatusUpdateRequestDto;
+import ru.practicum.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
@@ -12,34 +12,39 @@ import ru.practicum.mapper.RequestMapper;
 import ru.practicum.model.*;
 import ru.practicum.repository.EventRepository;
 import ru.practicum.repository.RequestRepository;
+import ru.practicum.repository.UserRepository;
 import ru.practicum.service.RequestService;
-import ru.practicum.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
 
+    private final RequestRepository requestRepository;
+    private final EventRepository eventRepository;
+    private final UserRepository userRepository;
+
     @Autowired
-    RequestRepository requestRepository;
-    @Autowired
-    EventRepository eventRepository;
-    @Autowired
-    UserService userService;
+    public RequestServiceImpl(RequestRepository requestRepository, EventRepository eventRepository, UserRepository userRepository) {
+        this.requestRepository = requestRepository;
+        this.eventRepository = eventRepository;
+        this.userRepository = userRepository;
+    }
 
     @Override
     public List<ParticipationRequestDto> getRequests(Long userId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         return requestRepository.findByRequester(user).stream().map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto addRequest(Long userId, Long eventId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToAddRequest(user, event);
         ParticipationRequest participationRequest = new ParticipationRequest(
@@ -49,8 +54,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto cancelRequest(Long userId, Long requestId) {
-        userService.getUserByIdRaw(userId);
+        getUserByIdRaw(userId);
         ParticipationRequest participationRequest = getParticipationRequestByIdRaw(requestId);
         participationRequest.setStatus(ParticipationRequestStatus.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(participationRequest));
@@ -58,7 +64,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getParticipationRequests(Long userId, Long eventId) {
-        User user = userService.getUserByIdRaw(userId);
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToEventRequest(user, event);
         return requestRepository.findByEvent(event).stream().map(RequestMapper::toParticipationRequestDto)
@@ -67,13 +73,13 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult updateRequestStatus(
-            Long userId, Long eventId, EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        User user = userService.getUserByIdRaw(userId);
+    public EventRequestStatusUpdateResultDto updateRequestStatus(
+            Long userId, Long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
+        User user = getUserByIdRaw(userId);
         Event event = getEventByIdRaw(eventId);
         checkUserAccessToUpdateRequest(user, event);
-        List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
-        switch (eventRequestStatusUpdateRequest.getStatus()) {
+        List<ParticipationRequest> requests = requestRepository.findAllById(eventRequestStatusUpdateRequestDto.getRequestIds());
+        switch (eventRequestStatusUpdateRequestDto.getStatus()) {
             case REJECTED:
                 rejectRequest(requests);
                 break;
@@ -85,16 +91,9 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public Map<Long, Long> getCountConfirmedRequestsByEventIds(List<Long> events) {
-        return requestRepository.findByEvent_IdInAndStatusIs(
-                        events, ParticipationRequestStatus.CONFIRMED)
-                .stream().collect(Collectors.groupingBy(pr -> pr.getEvent().getId(), Collectors.counting()));
-    }
-
-    @Override
     public Integer getCountConfirmedRequestsByEventId(Long eventId) {
-        return requestRepository.findByEvent_IdIsAndStatusIs(
-                eventId, ParticipationRequestStatus.CONFIRMED).size();
+        return requestRepository.countByEventIdIsAndStatusIs(
+                eventId, ParticipationRequestStatus.CONFIRMED);
     }
 
     private void confirmRequest(Event event, List<ParticipationRequest> requests) {
@@ -137,7 +136,7 @@ public class RequestServiceImpl implements RequestService {
             throw new AccessFailedException("user with id=" + user.getId() +
                     " initiator for event with id=" + event.getId());
         }
-        if (requestRepository.findByEventAndRequester(event, user).size() > 0) {
+        if (requestRepository.hasRequestToEventByUser(event, user)) {
             throw new AccessFailedException("user with id=" + user.getId() +
                     " have request to event with id=" + event.getId());
         }
@@ -162,5 +161,10 @@ public class RequestServiceImpl implements RequestService {
     private Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
+    }
+
+    private User getUserByIdRaw(Long userId) {
+        return userRepository.findById(userId).orElseThrow(
+                () -> new NotFoundException("user with id=" + userId + " not found"));
     }
 }

@@ -1,6 +1,6 @@
 package ru.practicum.mapper;
 
-import ru.practicum.dto.EventRequestStatusUpdateResult;
+import ru.practicum.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.dto.ParticipationRequestDto;
 import ru.practicum.model.ParticipationRequest;
 import ru.practicum.model.ParticipationRequestStatus;
@@ -16,7 +16,7 @@ public final class RequestMapper {
                 participationRequest.getStatus() == null ? null : participationRequest.getStatus().name());
     }
 
-    public static EventRequestStatusUpdateResult toEventRequestStatusUpdateResult(List<ParticipationRequest> requests) {
+    public static EventRequestStatusUpdateResultDto toEventRequestStatusUpdateResult(List<ParticipationRequest> requests) {
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> rejectedRequests = new ArrayList<>();
         for (ParticipationRequest participationRequest : requests) {
@@ -27,6 +27,6 @@ public final class RequestMapper {
                 rejectedRequests.add(toParticipationRequestDto(participationRequest));
             }
         }
-        return new EventRequestStatusUpdateResult(confirmedRequests, rejectedRequests);
+        return new EventRequestStatusUpdateResultDto(confirmedRequests, rejectedRequests);
     }
 }

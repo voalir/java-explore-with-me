@@ -11,8 +11,12 @@ import java.util.List;
 @RequestMapping(path = "/compilations")
 public class CompilationPublicController {
 
+    private final CompilationService compilationService;
+
     @Autowired
-    CompilationService compilationService;
+    public CompilationPublicController(CompilationService compilationService) {
+        this.compilationService = compilationService;
+    }
 
     @GetMapping
     List<CompilationDto> getCompilations(@RequestParam(required = false) Boolean pinned,

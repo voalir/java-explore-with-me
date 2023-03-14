@@ -17,10 +17,14 @@ import javax.validation.Valid;
 @Validated
 public class CategoryAdminController {
 
-    Logger logger = LoggerFactory.getLogger(CategoryAdminController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CategoryAdminController.class);
+
+    private final CategoryService categoryService;
 
     @Autowired
-    CategoryService categoryService;
+    public CategoryAdminController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
