@@ -44,7 +44,7 @@ public class EventPublicController {
         return eventService.getEventPublishedById(id, request);
     }
 
-    @GetMapping("/location")
+    @GetMapping("/locations")
     List<EventShortDto> getEventsByLocation(@RequestParam Long locationId,
                                             @RequestParam(required = false) String sort,
                                             @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
