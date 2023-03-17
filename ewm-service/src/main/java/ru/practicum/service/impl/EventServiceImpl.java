@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     public static final String EVENTS_POINT = "/events/";
+    public static final Boolean CHECK_REFER_EVENT_TO_LOCATION = false;
     private final EventRepository eventRepository;
     private final StatClient statClient;
     private final CategoryRepository categoryRepository;
@@ -121,16 +122,8 @@ public class EventServiceImpl implements EventService {
         validToAdd(newEventDto);
         User user = getUserByIdRaw(userId);
         Category category = getCategoryByIdRaw(newEventDto.getCategory());
-        checkReferEventToLocation(newEventDto);
         return EventMapper.toEventFullDto(
                 eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
-    }
-
-    private void checkReferEventToLocation(NewEventDto newEventDto) {
-        if (!locationRepository.isReferToAnyLocation(
-                newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())) {
-            throw new LocationNotFoundException("location not found");
-        }
     }
 
     @Override
@@ -313,10 +306,13 @@ public class EventServiceImpl implements EventService {
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
     }
 
-    private static void validToAdd(NewEventDto newEventDto) {
+    private void validToAdd(NewEventDto newEventDto) {
         if (newEventDto.getEventDate() != null &&
                 newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event can't create by time start");
+        }
+        if (CHECK_REFER_EVENT_TO_LOCATION) {
+            checkReferEventToLocation(newEventDto);
         }
     }
 
@@ -335,6 +331,13 @@ public class EventServiceImpl implements EventService {
         if (updateEventAdminRequestDto.getEventDate() != null &&
                 updateEventAdminRequestDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
+        }
+    }
+
+    private void checkReferEventToLocation(NewEventDto newEventDto) {
+        if (!locationRepository.isReferToAnyLocation(
+                newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())) {
+            throw new LocationNotFoundException("location not found");
         }
     }
 }
