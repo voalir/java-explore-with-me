@@ -22,6 +22,9 @@ public class EventLocation {
         this.radius = radius;
     }
 
+    public EventLocation() {
+    }
+
     public Long getId() {
         return id;
     }
