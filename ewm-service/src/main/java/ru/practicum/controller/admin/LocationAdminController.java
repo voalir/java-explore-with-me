@@ -40,9 +40,9 @@ public class LocationAdminController {
     }
 
     @GetMapping
-    List<EventLocationDto> getLocations(@RequestParam List<Long> locationIds,
+    List<EventLocationDto> getLocations(@RequestParam List<Long> ids,
                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
                                         @RequestParam(defaultValue = "10") @Positive Integer size) {
-        return locationService.getEventLocations(locationIds, from, size);
+        return locationService.getEventLocations(ids, from, size);
     }
 }

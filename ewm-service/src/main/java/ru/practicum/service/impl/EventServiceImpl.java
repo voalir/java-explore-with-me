@@ -127,7 +127,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkReferEventToLocation(NewEventDto newEventDto) {
-        if (locationRepository.isReferToAnyLocation(
+        if (!locationRepository.isReferToAnyLocation(
                 newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())) {
             throw new LocationNotFoundException("location not found");
         }
