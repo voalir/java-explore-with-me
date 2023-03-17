@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.practicum.dto.ApiErrorDto;
 import ru.practicum.exception.AccessFailedException;
+import ru.practicum.exception.LocationNotFoundException;
 import ru.practicum.exception.NotFoundException;
 
 import javax.validation.ValidationException;
@@ -56,6 +57,17 @@ public class ErrorHandler {
                 Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
                 e.getMessage(),
                 "no access",
+                ApiErrorDto.Status.STATUS_409_CONFLICT,
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiErrorDto handleLocationNotFountException(final LocationNotFoundException e) {
+        return new ApiErrorDto(
+                Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()),
+                e.getMessage(),
+                "no location",
                 ApiErrorDto.Status.STATUS_409_CONFLICT,
                 LocalDateTime.now());
     }

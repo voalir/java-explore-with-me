@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatClient;
 import ru.practicum.dto.*;
 import ru.practicum.exception.AccessFailedException;
+import ru.practicum.exception.LocationNotFoundException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.model.*;
@@ -120,8 +121,16 @@ public class EventServiceImpl implements EventService {
         validToAdd(newEventDto);
         User user = getUserByIdRaw(userId);
         Category category = getCategoryByIdRaw(newEventDto.getCategory());
+        checkReferEventToLocation(newEventDto);
         return EventMapper.toEventFullDto(
                 eventRepository.save(EventMapper.toEvent(newEventDto, user, category)), 0L, 0L);
+    }
+
+    private void checkReferEventToLocation(NewEventDto newEventDto) {
+        if (locationRepository.isReferToAnyLocation(
+                newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())) {
+            throw new LocationNotFoundException("location not found");
+        }
     }
 
     @Override
