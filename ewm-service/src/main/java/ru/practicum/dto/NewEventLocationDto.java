@@ -16,7 +16,7 @@ public final class NewEventLocationDto {
     private final Double lon;
     @NotNull
     @Positive
-    private final Double radius;//пока считаем, что это в относительных единицах
+    private final Double radius;
 
     @JsonCreator
     public NewEventLocationDto(String name, Double lat, Double lon, Double radius) {
@@ -34,6 +34,9 @@ public final class NewEventLocationDto {
         return lon;
     }
 
+    /**
+     * @return в относительных единицах
+     */
     public Double getRadius() {
         return radius;
     }

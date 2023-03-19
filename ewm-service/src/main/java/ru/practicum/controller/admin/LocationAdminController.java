@@ -18,8 +18,12 @@ import java.util.List;
 @Validated
 public class LocationAdminController {
 
+    private final LocationService locationService;
+
     @Autowired
-    LocationService locationService;
+    public LocationAdminController(LocationService locationService) {
+        this.locationService = locationService;
+    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)

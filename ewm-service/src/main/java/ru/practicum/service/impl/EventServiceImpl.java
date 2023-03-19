@@ -7,7 +7,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.StatClient;
 import ru.practicum.dto.*;
 import ru.practicum.exception.AccessFailedException;
-import ru.practicum.exception.LocationNotFoundException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.model.*;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 public class EventServiceImpl implements EventService {
 
     public static final String EVENTS_POINT = "/events/";
-    public static final Boolean CHECK_REFER_EVENT_TO_LOCATION = false;
     private final EventRepository eventRepository;
     private final StatClient statClient;
     private final CategoryRepository categoryRepository;
@@ -311,9 +309,6 @@ public class EventServiceImpl implements EventService {
                 newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event can't create by time start");
         }
-        if (CHECK_REFER_EVENT_TO_LOCATION) {
-            checkReferEventToLocation(newEventDto);
-        }
     }
 
     private static void validToUpdate(Long eventId, UpdateEventAdminRequestDto updateEventAdminRequestDto, Event event) {
@@ -334,10 +329,4 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private void checkReferEventToLocation(NewEventDto newEventDto) {
-        if (!locationRepository.isReferToAnyLocation(
-                newEventDto.getLocation().getLat(), newEventDto.getLocation().getLon())) {
-            throw new LocationNotFoundException("location not found");
-        }
-    }
 }

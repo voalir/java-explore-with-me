@@ -16,8 +16,12 @@ import java.util.List;
 @RequestMapping(path = "/locations")
 public class LocationPublicController {
 
+    private final LocationService locationService;
+
     @Autowired
-    LocationService locationService;
+    public LocationPublicController(LocationService locationService) {
+        this.locationService = locationService;
+    }
 
     @GetMapping
     List<EventLocationDto> getLocations(@RequestParam List<Long> locationIds,

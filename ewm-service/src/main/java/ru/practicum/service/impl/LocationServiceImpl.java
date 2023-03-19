@@ -16,8 +16,12 @@ import java.util.stream.Collectors;
 @Service
 public class LocationServiceImpl implements LocationService {
 
+    private final LocationRepository locationRepository;
+
     @Autowired
-    LocationRepository locationRepository;
+    public LocationServiceImpl(LocationRepository locationRepository) {
+        this.locationRepository = locationRepository;
+    }
 
     @Override
     public EventLocationDto addLocation(NewEventLocationDto newEventLocationDto) {
