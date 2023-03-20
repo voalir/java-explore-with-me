@@ -53,7 +53,10 @@ public class CustomEventRepositoryImpl implements CustomEventRepository {
     }
 
     @Override
-    public List<Event> getEventsByPublicFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size) {
+    public List<Event> getEventsByPublicFilter(String text, List<Long> categories, Boolean paid,
+                                               LocalDateTime rangeStart, LocalDateTime rangeEnd,
+                                               Boolean onlyAvailable, String sort, Integer from,
+                                               Integer size) {
         CriteriaBuilder criteriaBuilder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Event> query = criteriaBuilder.createQuery(Event.class);
         Root<Event> eventRoot = query.from(Event.class);

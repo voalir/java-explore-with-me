@@ -10,10 +10,7 @@ import ru.practicum.exception.AccessFailedException;
 import ru.practicum.exception.NotFoundException;
 import ru.practicum.mapper.EventMapper;
 import ru.practicum.model.*;
-import ru.practicum.repository.CategoryRepository;
-import ru.practicum.repository.EventRepository;
-import ru.practicum.repository.RequestRepository;
-import ru.practicum.repository.UserRepository;
+import ru.practicum.repository.*;
 import ru.practicum.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,14 +30,16 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
+    private final LocationRepository locationRepository;
 
     @Autowired
-    public EventServiceImpl(EventRepository eventRepository, StatClient statClient, CategoryRepository categoryRepository, UserRepository userRepository, RequestRepository requestRepository) {
+    public EventServiceImpl(EventRepository eventRepository, StatClient statClient, CategoryRepository categoryRepository, UserRepository userRepository, RequestRepository requestRepository, LocationRepository locationRepository) {
         this.eventRepository = eventRepository;
         this.statClient = statClient;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.requestRepository = requestRepository;
+        this.locationRepository = locationRepository;
     }
 
     @Override
@@ -107,6 +106,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    public List<EventShortDto> getEventsByLocation(
+            Long locationId, Integer from, Integer size, String sort, HttpServletRequest request) {
+        EventLocation eventLocation = getEventLocationByIdRaw(locationId);
+        List<Event> events = eventRepository.getEventsByLocation(eventLocation.getId(), PageRequest.of(from / size, size));
+        sendStat(request);
+        return getEventShortDtos(false, sort, events);
+    }
+
+    @Override
     @Transactional
     public EventFullDto addEvent(Long userId, NewEventDto newEventDto) {
         validToAdd(newEventDto);
@@ -132,6 +140,11 @@ public class EventServiceImpl implements EventService {
     private Event getEventByIdRaw(Long eventId) {
         return eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("event with id=" + eventId + " not found"));
+    }
+
+    private EventLocation getEventLocationByIdRaw(Long locationId) {
+        return locationRepository.findById(locationId).orElseThrow(
+                () -> new NotFoundException("location with id=" + locationId + " not found"));
     }
 
     private EventFullDto convertEventToFullDto(Event event) {
@@ -291,7 +304,7 @@ public class EventServiceImpl implements EventService {
                 views.getOrDefault(event.getId(), 0L))).collect(Collectors.toList());
     }
 
-    private static void validToAdd(NewEventDto newEventDto) {
+    private void validToAdd(NewEventDto newEventDto) {
         if (newEventDto.getEventDate() != null &&
                 newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
             throw new AccessFailedException("Event can't create by time start");
@@ -315,4 +328,5 @@ public class EventServiceImpl implements EventService {
             throw new AccessFailedException("Event with id=" + eventId + " can't update by time start");
         }
     }
+
 }

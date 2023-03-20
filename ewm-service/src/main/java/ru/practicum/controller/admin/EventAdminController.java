@@ -37,12 +37,6 @@ public class EventAdminController {
     @PatchMapping("/{eventId}")
     EventFullDto updateEvent(@PathVariable Long eventId,
                              @RequestBody UpdateEventAdminRequestDto updateEventAdminRequestDto) {
-/*Редактирование данных любого события администратором. Валидация данных не требуется. Обратите внимание:
-
-    дата начала изменяемого события должна быть не ранее чем за час от даты публикации. (Ожидается код ошибки 409)
-    событие можно публиковать, только если оно в состоянии ожидания публикации (Ожидается код ошибки 409)
-    событие можно отклонить, только если оно еще не опубликовано (Ожидается код ошибки 409)
-*/
         return eventService.updateEvent(eventId, updateEventAdminRequestDto);
     }
 }

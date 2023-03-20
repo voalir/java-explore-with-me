@@ -22,8 +22,10 @@ public interface EventService {
     EventFullDto updateEventByUser(Long userId, Long eventId, UpdateEventUserRequestDto updateEventUserRequestDto);
 
     List<EventShortDto> getEventsByPublicFilter(String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
-                                                LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from, Integer size, HttpServletRequest request);
+                                                LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, Integer from,
+                                                Integer size, HttpServletRequest request);
 
     EventFullDto getEventPublishedById(Long id, HttpServletRequest request);
 
+    List<EventShortDto> getEventsByLocation(Long locationId, Integer from, Integer size, String sort, HttpServletRequest request);
 }
