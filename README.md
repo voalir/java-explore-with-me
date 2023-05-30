@@ -1,4 +1,9 @@
 # java-explore-with-me
-Template repository for ExploreWithMe project.
 
-https://github.com/voalir/java-explore-with-me/pull/3
+Серверная часть приложения - афиши событий
+
+Реализовано создание, редактирование мероприятия, подача заявки на участия в мероприятиях,
+подтверждение/отклонение заявки на участие в мероприятии
+API разделен на публичную, закрытую и административную части
+
+При разработке используется: Spring Boot, Spring Data, Hibernate, Docker
